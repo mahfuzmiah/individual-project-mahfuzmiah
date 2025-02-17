@@ -14,19 +14,21 @@ unique_values_summary = {}
 
 # Iterate through each column and collect unique values
 for col in data.columns:
-    unique_values = data[col].dropna().unique()
-
-    # Check if column is categorical (skip columns with too many unique values)
-    if len(unique_values) < 200:  # Adjust threshold if needed
-        # Show only first 10 unique values
-        unique_values_summary[col] = unique_values[:200]
+    # Check if the column is numeric
+    if pd.api.types.is_numeric_dtype(data[col]):
+        unique_values_summary[col] = f"{data[col].count()} instances"
     else:
-        unique_values_summary[col] = f"{len(unique_values)} unique values (too many to display)"
+        unique_values = data[col].dropna().unique()
+
+        # Check if column is categorical (skip columns with too many unique values)
+        if len(unique_values) < 200:  # Adjust threshold if needed
+            unique_values_summary[col] = unique_values[:200]
+        else:
+            unique_values_summary[col] = f"{len(unique_values)} unique values (too many to display)"
 
 # Convert to DataFrame for better readability
 unique_values_df = pd.DataFrame(list(unique_values_summary.items()), columns=[
                                 "Column", "Example Unique Values"])
-
 
 # Save to a file (optional)
 output_file = "/Users/mahfuz/Final_project/Final_repo/DataSets/UniqueColumnSummary.csv"
