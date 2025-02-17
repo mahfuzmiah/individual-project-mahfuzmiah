@@ -1,172 +1,138 @@
 Column,Example Unique Values
-FREQ,['Q']
-Frequency,['Quarterly']
-L_MEASURE,['S' 'B']
-Measure,['Amounts outstanding / Stocks' 'Break in stocks']
-L_REP_CTY,"['AU' 'CH' 'FR' 'SE' 'ES' 'GB' 'CA' 'CL' 'IT' 'JP' 'AT' 'IE' 'DE' 'TW'
- 'PT' 'FI' 'IN' 'BR' 'NL' 'KR' 'SG' 'BE' 'GR' 'US' 'TR' 'DK' 'MX' 'PA']"
-Reporting country,"['Australia' 'Switzerland' 'France' 'Sweden' 'Spain' 'United Kingdom'
- 'Canada' 'Chile' 'Italy' 'Japan' 'Austria' 'Ireland' 'Germany'
- 'Chinese Taipei' 'Portugal' 'Finland' 'India' 'Brazil' 'Netherlands'
- 'Korea' 'Singapore' 'Belgium' 'Greece' 'United States' 'Türkiye'
- 'Denmark' 'Mexico' 'Panama']"
-CBS_BANK_TYPE,['4R' '4C' '4O' '4B' '4M']
-CBS bank type,"['Domestic banks(4B), excl. domestic positions'
- 'Inside-area foreign banks consolidated by their parent'
- 'All excluding 4C banks, excl. domestic positions (= 4R + 4Q +4V)'
- 'Domestic banks' 'All banks (=4B +4C + 4D +4E)']"
-CBS_BASIS,['U' 'F' 'Q' 'O']
-CBS reporting basis,"['Guarantor basis' 'Immediate counterparty basis'
- 'Net risk transfers (Inward-Outward)' 'Outward risk transfers']"
-L_POSITION,['C' 'I' 'B' 'X' 'W']
-Balance sheet position,"['Total claims' 'International claims' 'Local claims' 'Credit commitments'
- 'Guarantees extended']"
-L_INSTR,['A' 'V']
-Type of instruments,['All instruments' 'Derivatives']
-REM_MATURITY,['A' 'U']
-Remaining maturity,['Total (all maturities)' 'Up to and including 1 year']
-CURR_TYPE_BOOK,['TO1' 'LC1']
-Currency type of booking location,['All currencies' 'Local currency']
-L_CP_SECTOR,['O' 'R' 'A' 'F' 'B']
-Counterparty sector,"['Official sector' 'Non-bank private sector' 'All sectors'
- 'Non-bank financial institutions' 'Banks, total']"
-L_CP_COUNTRY,225 unique values (too many to display)
-Counterparty country,226 unique values (too many to display)
-TIME_FORMAT,[]
-Time Format,[]
-COLLECTION,['E' 'V']
-Collection Indicator,['End of period' 'Other']
-ORG_VISIBILITY,['E']
-Organisation visibility,['Public']
-Series,100086 unique values (too many to display)
-1983-Q4,705 unique values (too many to display)
-1984-Q2,697 unique values (too many to display)
-1984-Q4,761 unique values (too many to display)
-1985-Q2,760 unique values (too many to display)
-1985-Q4,845 unique values (too many to display)
-1986-Q2,859 unique values (too many to display)
-1986-Q4,868 unique values (too many to display)
-1987-Q2,875 unique values (too many to display)
-1987-Q4,898 unique values (too many to display)
-1988-Q2,881 unique values (too many to display)
-1988-Q4,886 unique values (too many to display)
-1989-Q2,890 unique values (too many to display)
-1989-Q4,916 unique values (too many to display)
-1990-Q2,907 unique values (too many to display)
-1990-Q4,911 unique values (too many to display)
-1991-Q2,892 unique values (too many to display)
-1991-Q4,925 unique values (too many to display)
-1992-Q2,940 unique values (too many to display)
-1992-Q4,957 unique values (too many to display)
-1993-Q2,1021 unique values (too many to display)
-1993-Q4,963 unique values (too many to display)
-1994-Q2,974 unique values (too many to display)
-1994-Q4,971 unique values (too many to display)
-1995-Q2,1018 unique values (too many to display)
-1995-Q4,1060 unique values (too many to display)
-1996-Q2,1064 unique values (too many to display)
-1996-Q4,1050 unique values (too many to display)
-1997-Q2,1109 unique values (too many to display)
-1997-Q4,1152 unique values (too many to display)
-1998-Q2,1145 unique values (too many to display)
-1998-Q4,1140 unique values (too many to display)
-1999-Q2,2144 unique values (too many to display)
-1999-Q4,2255 unique values (too many to display)
-2000-Q1,2269 unique values (too many to display)
-2000-Q2,2332 unique values (too many to display)
-2000-Q3,2269 unique values (too many to display)
-2000-Q4,2384 unique values (too many to display)
-2001-Q1,2373 unique values (too many to display)
-2001-Q2,2329 unique values (too many to display)
-2001-Q3,2338 unique values (too many to display)
-2001-Q4,2365 unique values (too many to display)
-2002-Q1,2337 unique values (too many to display)
-2002-Q2,2347 unique values (too many to display)
-2002-Q3,2372 unique values (too many to display)
-2002-Q4,2392 unique values (too many to display)
-2003-Q1,2395 unique values (too many to display)
-2003-Q2,2503 unique values (too many to display)
-2003-Q3,2523 unique values (too many to display)
-2003-Q4,2657 unique values (too many to display)
-2004-Q1,2695 unique values (too many to display)
-2004-Q2,2621 unique values (too many to display)
-2004-Q3,2644 unique values (too many to display)
-2004-Q4,2762 unique values (too many to display)
-2005-Q1,4046 unique values (too many to display)
-2005-Q2,4482 unique values (too many to display)
-2005-Q3,4375 unique values (too many to display)
-2005-Q4,4404 unique values (too many to display)
-2006-Q1,4760 unique values (too many to display)
-2006-Q2,4793 unique values (too many to display)
-2006-Q3,4843 unique values (too many to display)
-2006-Q4,4911 unique values (too many to display)
-2007-Q1,5115 unique values (too many to display)
-2007-Q2,5167 unique values (too many to display)
-2007-Q3,5498 unique values (too many to display)
-2007-Q4,5717 unique values (too many to display)
-2008-Q1,5758 unique values (too many to display)
-2008-Q2,5841 unique values (too many to display)
-2008-Q3,5885 unique values (too many to display)
-2008-Q4,5654 unique values (too many to display)
-2009-Q1,5588 unique values (too many to display)
-2009-Q2,5651 unique values (too many to display)
-2009-Q3,5960 unique values (too many to display)
-2009-Q4,5894 unique values (too many to display)
-2010-Q1,5837 unique values (too many to display)
-2010-Q2,5798 unique values (too many to display)
-2010-Q3,5949 unique values (too many to display)
-2010-Q4,5869 unique values (too many to display)
-2011-Q1,5983 unique values (too many to display)
-2011-Q2,5970 unique values (too many to display)
-2011-Q3,5944 unique values (too many to display)
-2011-Q4,5845 unique values (too many to display)
-2012-Q1,6051 unique values (too many to display)
-2012-Q2,6872 unique values (too many to display)
-2012-Q3,6931 unique values (too many to display)
-2012-Q4,6859 unique values (too many to display)
-2013-Q1,6847 unique values (too many to display)
-2013-Q2,6796 unique values (too many to display)
-2013-Q3,6928 unique values (too many to display)
-2013-Q4,12225 unique values (too many to display)
-2014-Q1,13161 unique values (too many to display)
-2014-Q2,13388 unique values (too many to display)
-2014-Q3,13187 unique values (too many to display)
-2014-Q4,13607 unique values (too many to display)
-2015-Q1,13876 unique values (too many to display)
-2015-Q2,13888 unique values (too many to display)
-2015-Q3,13858 unique values (too many to display)
-2015-Q4,14067 unique values (too many to display)
-2016-Q1,14339 unique values (too many to display)
-2016-Q2,14066 unique values (too many to display)
-2016-Q3,13982 unique values (too many to display)
-2016-Q4,14124 unique values (too many to display)
-2017-Q1,15448 unique values (too many to display)
-2017-Q2,15058 unique values (too many to display)
-2017-Q3,14329 unique values (too many to display)
-2017-Q4,15169 unique values (too many to display)
-2018-Q1,14592 unique values (too many to display)
-2018-Q2,14546 unique values (too many to display)
-2018-Q3,14331 unique values (too many to display)
-2018-Q4,14498 unique values (too many to display)
-2019-Q1,14348 unique values (too many to display)
-2019-Q2,14445 unique values (too many to display)
-2019-Q3,14395 unique values (too many to display)
-2019-Q4,14471 unique values (too many to display)
-2020-Q1,14537 unique values (too many to display)
-2020-Q2,14296 unique values (too many to display)
-2020-Q3,14375 unique values (too many to display)
-2020-Q4,14481 unique values (too many to display)
-2021-Q1,14511 unique values (too many to display)
-2021-Q2,14465 unique values (too many to display)
-2021-Q3,14499 unique values (too many to display)
-2021-Q4,14362 unique values (too many to display)
-2022-Q1,14518 unique values (too many to display)
-2022-Q2,14476 unique values (too many to display)
-2022-Q3,14284 unique values (too many to display)
-2022-Q4,14302 unique values (too many to display)
-2023-Q1,13988 unique values (too many to display)
-2023-Q2,13894 unique values (too many to display)
-2023-Q3,14113 unique values (too many to display)
-2023-Q4,14158 unique values (too many to display)
-2024-Q1,14077 unique values (too many to display)
-2024-Q2,14242 unique values (too many to display)
+index,12273 instances
+L_REP_CTY,"['AT' 'AU' 'BE' 'BR' 'CA' 'CH' 'CL' 'DE' 'DK' 'ES' 'FI' 'FR' 'GB' 'GR'
+ 'IE' 'IN' 'IT' 'JP' 'KR' 'MX' 'NL' 'PA' 'PT' 'SE' 'SG' 'TR' 'TW' 'US']"
+L_CP_COUNTRY,224 unique values (too many to display)
+CBS_BASIS,['F' 'O' 'Q' 'U']
+1983-Q4,12273 instances
+1984-Q2,12273 instances
+1984-Q4,12273 instances
+1985-Q2,12273 instances
+1985-Q4,12273 instances
+1986-Q2,12273 instances
+1986-Q4,12273 instances
+1987-Q2,12273 instances
+1987-Q4,12273 instances
+1988-Q2,12273 instances
+1988-Q4,12273 instances
+1989-Q2,12273 instances
+1989-Q4,12273 instances
+1990-Q2,12273 instances
+1990-Q4,12273 instances
+1991-Q2,12273 instances
+1991-Q4,12273 instances
+1992-Q2,12273 instances
+1992-Q4,12273 instances
+1993-Q2,12273 instances
+1993-Q4,12273 instances
+1994-Q2,12273 instances
+1994-Q4,12273 instances
+1995-Q2,12273 instances
+1995-Q4,12273 instances
+1996-Q2,12273 instances
+1996-Q4,12273 instances
+1997-Q2,12273 instances
+1997-Q4,12273 instances
+1998-Q2,12273 instances
+1998-Q4,12273 instances
+1999-Q2,12273 instances
+1999-Q4,12273 instances
+2000-Q1,12273 instances
+2000-Q2,12273 instances
+2000-Q3,12273 instances
+2000-Q4,12273 instances
+2001-Q1,12273 instances
+2001-Q2,12273 instances
+2001-Q3,12273 instances
+2001-Q4,12273 instances
+2002-Q1,12273 instances
+2002-Q2,12273 instances
+2002-Q3,12273 instances
+2002-Q4,12273 instances
+2003-Q1,12273 instances
+2003-Q2,12273 instances
+2003-Q3,12273 instances
+2003-Q4,12273 instances
+2004-Q1,12273 instances
+2004-Q2,12273 instances
+2004-Q3,12273 instances
+2004-Q4,12273 instances
+2005-Q1,12273 instances
+2005-Q2,12273 instances
+2005-Q3,12273 instances
+2005-Q4,12273 instances
+2006-Q1,12273 instances
+2006-Q2,12273 instances
+2006-Q3,12273 instances
+2006-Q4,12273 instances
+2007-Q1,12273 instances
+2007-Q2,12273 instances
+2007-Q3,12273 instances
+2007-Q4,12273 instances
+2008-Q1,12273 instances
+2008-Q2,12273 instances
+2008-Q3,12273 instances
+2008-Q4,12273 instances
+2009-Q1,12273 instances
+2009-Q2,12273 instances
+2009-Q3,12273 instances
+2009-Q4,12273 instances
+2010-Q1,12273 instances
+2010-Q2,12273 instances
+2010-Q3,12273 instances
+2010-Q4,12273 instances
+2011-Q1,12273 instances
+2011-Q2,12273 instances
+2011-Q3,12273 instances
+2011-Q4,12273 instances
+2012-Q1,12273 instances
+2012-Q2,12273 instances
+2012-Q3,12273 instances
+2012-Q4,12273 instances
+2013-Q1,12273 instances
+2013-Q2,12273 instances
+2013-Q3,12273 instances
+2013-Q4,12273 instances
+2014-Q1,12273 instances
+2014-Q2,12273 instances
+2014-Q3,12273 instances
+2014-Q4,12273 instances
+2015-Q1,12273 instances
+2015-Q2,12273 instances
+2015-Q3,12273 instances
+2015-Q4,12273 instances
+2016-Q1,12273 instances
+2016-Q2,12273 instances
+2016-Q3,12273 instances
+2016-Q4,12273 instances
+2017-Q1,12273 instances
+2017-Q2,12273 instances
+2017-Q3,12273 instances
+2017-Q4,12273 instances
+2018-Q1,12273 instances
+2018-Q2,12273 instances
+2018-Q3,12273 instances
+2018-Q4,12273 instances
+2019-Q1,12273 instances
+2019-Q2,12273 instances
+2019-Q3,12273 instances
+2019-Q4,12273 instances
+2020-Q1,12273 instances
+2020-Q2,12273 instances
+2020-Q3,12273 instances
+2020-Q4,12273 instances
+2021-Q1,12273 instances
+2021-Q2,12273 instances
+2021-Q3,12273 instances
+2021-Q4,12273 instances
+2022-Q1,12273 instances
+2022-Q2,12273 instances
+2022-Q3,12273 instances
+2022-Q4,12273 instances
+2023-Q1,12273 instances
+2023-Q2,12273 instances
+2023-Q3,12273 instances
+2023-Q4,12273 instances
+2024-Q1,12273 instances
+2024-Q2,12273 instances
+2024-Q3,12273 instances
