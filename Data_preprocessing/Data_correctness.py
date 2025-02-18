@@ -1,4 +1,13 @@
-# Identify the quarter columns
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+input_file = "/Users/mahfuz/Final_project/Final_repo/DataSets/CleanedCBSDataSet.csv"
+# input_file = "/Users/mahfuz/Final_project/Final_repo/DataSets/WS_CBS_PUB_csv_col.csv"
+data = pd.read_csv(input_file)
+
+df = pd.DataFrame(data)
+
+# # Identify the quarter columns
 # time_columns = [col for col in df.columns if '-Q' in col]
 
 # # Replace all zeros with NaN in those columns
@@ -81,3 +90,33 @@
 #     "/Users/mahfuz/Final_project/Final_repo/Diagrams/MissingPercentage_by_Reporting_basis.png", dpi=300)
 # plt.show()
 
+
+# Identify the quarter columns (those containing '-Q' in their names)
+time_columns = [col for col in df.columns if '-Q' in col]
+
+# If you want to treat 0 as missing, replace 0 with NaN in those columns
+df[time_columns] = df[time_columns].replace(0, np.nan)
+
+# 1. Compute the missingness for each time column grouped by reporting country (L_REP_CTY)
+#    This gives a missingness percentage for each quarter, per reporting country.
+missing_by_country_quarter = df.groupby(
+    'L_REP_CTY')[time_columns].apply(lambda x: x.isnull().mean() * 100)
+
+# 2. Now compute the average missingness across all quarters for each reporting country.
+#    i.e., the mean of the quarter-level missing percentages.
+average_missing_by_country = missing_by_country_quarter.mean(
+    axis=1).sort_values(ascending=False)
+
+# 3. Plot a bar chart of the average missingness by country
+plt.figure(figsize=(12, 6))
+average_missing_by_country.plot(kind='bar', color='skyblue')
+plt.title("Average Missing Percentage per Reporting Country (0 Treated as Missing)")
+plt.xlabel("Reporting Country")
+plt.ylabel("Average Missing Percentage Across Quarters")
+plt.xticks(rotation=45)
+plt.tight_layout()
+
+# 4. Save and show the plot
+plt.savefig(
+    "/Users/mahfuz/Final_project/Final_repo/Diagrams/MissingPercentage_by_ReportingCountry.png", dpi=300)
+plt.show()

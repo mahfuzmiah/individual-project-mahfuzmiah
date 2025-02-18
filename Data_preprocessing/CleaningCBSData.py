@@ -200,10 +200,6 @@ consolidated = pd.DataFrame(result_dict, index=df_4B.index).reset_index()
 # 9. Reset index (optional) and save the consolidated results
 consolidated = consolidated.reset_index()
 consolidated.to_csv(output_file, index=False)
-print("Consolidated Edgeweight with conditional logic:")
-
-missing_by_column = df.isnull().sum()
-missing_percentage = df.isnull().mean() * 100
-
-print(missing_by_column.sort_values(ascending=False))
-print(missing_percentage.sort_values(ascending=False))
+print("Consolidated Edgeweight with logic")
+print(
+    f"Reduced the dataset from {len(data)} to {len(consolidated)} rows.")
