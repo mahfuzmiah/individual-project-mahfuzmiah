@@ -1,138 +1,258 @@
 Column,Example Unique Values
-index,12273 instances
-L_REP_CTY,"['AT' 'AU' 'BE' 'BR' 'CA' 'CH' 'CL' 'DE' 'DK' 'ES' 'FI' 'FR' 'GB' 'GR'
- 'IE' 'IN' 'IT' 'JP' 'KR' 'MX' 'NL' 'PA' 'PT' 'SE' 'SG' 'TR' 'TW' 'US']"
-L_CP_COUNTRY,224 unique values (too many to display)
-CBS_BASIS,['F' 'O' 'Q' 'U']
-1983-Q4,12273 instances
-1984-Q2,12273 instances
-1984-Q4,12273 instances
-1985-Q2,12273 instances
-1985-Q4,12273 instances
-1986-Q2,12273 instances
-1986-Q4,12273 instances
-1987-Q2,12273 instances
-1987-Q4,12273 instances
-1988-Q2,12273 instances
-1988-Q4,12273 instances
-1989-Q2,12273 instances
-1989-Q4,12273 instances
-1990-Q2,12273 instances
-1990-Q4,12273 instances
-1991-Q2,12273 instances
-1991-Q4,12273 instances
-1992-Q2,12273 instances
-1992-Q4,12273 instances
-1993-Q2,12273 instances
-1993-Q4,12273 instances
-1994-Q2,12273 instances
-1994-Q4,12273 instances
-1995-Q2,12273 instances
-1995-Q4,12273 instances
-1996-Q2,12273 instances
-1996-Q4,12273 instances
-1997-Q2,12273 instances
-1997-Q4,12273 instances
-1998-Q2,12273 instances
-1998-Q4,12273 instances
-1999-Q2,12273 instances
-1999-Q4,12273 instances
-2000-Q1,12273 instances
-2000-Q2,12273 instances
-2000-Q3,12273 instances
-2000-Q4,12273 instances
-2001-Q1,12273 instances
-2001-Q2,12273 instances
-2001-Q3,12273 instances
-2001-Q4,12273 instances
-2002-Q1,12273 instances
-2002-Q2,12273 instances
-2002-Q3,12273 instances
-2002-Q4,12273 instances
-2003-Q1,12273 instances
-2003-Q2,12273 instances
-2003-Q3,12273 instances
-2003-Q4,12273 instances
-2004-Q1,12273 instances
-2004-Q2,12273 instances
-2004-Q3,12273 instances
-2004-Q4,12273 instances
-2005-Q1,12273 instances
-2005-Q2,12273 instances
-2005-Q3,12273 instances
-2005-Q4,12273 instances
-2006-Q1,12273 instances
-2006-Q2,12273 instances
-2006-Q3,12273 instances
-2006-Q4,12273 instances
-2007-Q1,12273 instances
-2007-Q2,12273 instances
-2007-Q3,12273 instances
-2007-Q4,12273 instances
-2008-Q1,12273 instances
-2008-Q2,12273 instances
-2008-Q3,12273 instances
-2008-Q4,12273 instances
-2009-Q1,12273 instances
-2009-Q2,12273 instances
-2009-Q3,12273 instances
-2009-Q4,12273 instances
-2010-Q1,12273 instances
-2010-Q2,12273 instances
-2010-Q3,12273 instances
-2010-Q4,12273 instances
-2011-Q1,12273 instances
-2011-Q2,12273 instances
-2011-Q3,12273 instances
-2011-Q4,12273 instances
-2012-Q1,12273 instances
-2012-Q2,12273 instances
-2012-Q3,12273 instances
-2012-Q4,12273 instances
-2013-Q1,12273 instances
-2013-Q2,12273 instances
-2013-Q3,12273 instances
-2013-Q4,12273 instances
-2014-Q1,12273 instances
-2014-Q2,12273 instances
-2014-Q3,12273 instances
-2014-Q4,12273 instances
-2015-Q1,12273 instances
-2015-Q2,12273 instances
-2015-Q3,12273 instances
-2015-Q4,12273 instances
-2016-Q1,12273 instances
-2016-Q2,12273 instances
-2016-Q3,12273 instances
-2016-Q4,12273 instances
-2017-Q1,12273 instances
-2017-Q2,12273 instances
-2017-Q3,12273 instances
-2017-Q4,12273 instances
-2018-Q1,12273 instances
-2018-Q2,12273 instances
-2018-Q3,12273 instances
-2018-Q4,12273 instances
-2019-Q1,12273 instances
-2019-Q2,12273 instances
-2019-Q3,12273 instances
-2019-Q4,12273 instances
-2020-Q1,12273 instances
-2020-Q2,12273 instances
-2020-Q3,12273 instances
-2020-Q4,12273 instances
-2021-Q1,12273 instances
-2021-Q2,12273 instances
-2021-Q3,12273 instances
-2021-Q4,12273 instances
-2022-Q1,12273 instances
-2022-Q2,12273 instances
-2022-Q3,12273 instances
-2022-Q4,12273 instances
-2023-Q1,12273 instances
-2023-Q2,12273 instances
-2023-Q3,12273 instances
-2023-Q4,12273 instances
-2024-Q1,12273 instances
-2024-Q2,12273 instances
-2024-Q3,12273 instances
+FREQ,['Q']
+Frequency,['Quarterly']
+L_MEASURE,['F' 'G' 'S' 'B']
+Measure,"['FX and break adjusted change (BIS calculated)'
+ 'Annual growth (BIS calculated)' 'Amounts outstanding / Stocks'
+ 'Break in stocks']"
+L_POSITION,['L' 'C']
+Balance sheet position,['Total liabilities' 'Total claims']
+L_INSTR,['A' 'G' 'D' 'I' 'U' 'M' 'B']
+Type of instruments,"['All instruments' 'Loans and deposits' 'Debt securities'
+ 'Derivatives and Other instruments' 'Unallocated by instrument'
+ 'Debt securities, short-term' 'Credit (loans & debt securities)']"
+L_DENOM,['TO1' 'JPY' 'USD' 'TO3' 'EUR' 'GBP' 'CHF' 'UN9']
+Currency denomination,"['All currencies' 'Yen' 'US dollar' 'All currencies excl. core' 'Euro'
+ 'Pound (sterling)' 'Swiss franc' 'Unallocated currencies']"
+L_CURR_TYPE,['A' 'F' 'U' 'D']
+Currency type of reporting country,"['All currencies (=D+F+U)'
+ 'Foreign currency (ie currencies foreign to bank location country)'
+ 'Unclassified currency'
+ 'Domestic currency (ie currency of bank location country)']"
+L_PARENT_CTY,"['5J' 'CA' 'FR' 'BS' 'JP' '3W' 'BM' 'KR' 'ZA' 'IM' 'SE' 'BR' 'BE' 'TW'
+ 'CN' 'ES' 'US' 'GG' 'MO' 'CH' 'LU' '5N' 'FI' 'DE' 'SG' 'CL' 'NO' 'MX'
+ 'NL' 'IN' 'IT' 'GB' 'PT' 'PA' 'KY' 'JE' '5M' 'HK' '3Z' '1G' 'CY' 'IE'
+ 'TR' 'BH' 'MY' 'ID' 'DK' '3X' 'AT' '3Y' 'AU' 'GR']"
+Parent country,"['All countries (total)' 'Canada' 'France' 'The Bahamas' 'Japan'
+ 'Non-reporting developing Africa and Middle East' 'Bermuda' 'Korea'
+ 'South Africa' 'Isle of Man' 'Sweden' 'Brazil' 'Belgium' 'Chinese Taipei'
+ 'China' 'Spain' 'United States' 'Guernsey' 'Macao SAR' 'Switzerland'
+ 'Luxembourg' 'Non-reporting developed countries' 'Finland' 'Germany'
+ 'Singapore' 'Chile' 'Norway' 'Mexico' 'Netherlands' 'India' 'Italy'
+ 'United Kingdom' 'Portugal' 'Panama' 'Cayman Islands' 'Jersey'
+ 'Unallocated location' 'Hong Kong SAR'
+ 'Non-reporting developing Latin America and Caribbean' 'Consortium banks'
+ 'Cyprus' 'Ireland' 'Türkiye' 'Bahrain' 'Malaysia' 'Indonesia' 'Denmark'
+ 'Non-reporting developing Asia and Pacific' 'Austria'
+ 'Non-reporting developing Europe' 'Australia' 'Greece']"
+L_REP_BANK_TYPE,['A' 'D' 'S' 'B']
+Type of reporting institutions,"['All reporting banks/institutions (domestic, foreign, consortium and unclassified)'
+ 'Domestic banks' 'Foreign subsidiaries' 'Foreign branches']"
+L_REP_CTY,"['SE' 'GB' 'NL' '5A' 'GG' 'IN' 'PT' 'RU' 'NO' 'CA' 'MO' 'DE' 'MX' 'DK'
+ 'BR' 'JE' 'US' 'SG' 'TR' 'IM' 'JP' 'AT' 'SA' 'CY' 'PH' 'FR' 'ES' 'KY'
+ 'BS' 'ZA' 'CN' 'IE' 'FI' 'CH' 'HK' 'LU' 'BH' 'IT' 'AU' 'ID' 'TW' 'BM'
+ 'KR' 'MY' 'PA' 'GR' 'CL' 'BE' 'CW' '5C']"
+Reporting country,"['Sweden' 'United Kingdom' 'Netherlands' 'All reporting countries'
+ 'Guernsey' 'India' 'Portugal' 'Russia' 'Norway' 'Canada' 'Macao SAR'
+ 'Germany' 'Mexico' 'Denmark' 'Brazil' 'Jersey' 'United States'
+ 'Singapore' 'Türkiye' 'Isle of Man' 'Japan' 'Austria' 'Saudi Arabia'
+ 'Cyprus' 'Philippines' 'France' 'Spain' 'Cayman Islands' 'The Bahamas'
+ 'South Africa' 'China' 'Ireland' 'Finland' 'Switzerland' 'Hong Kong SAR'
+ 'Luxembourg' 'Bahrain' 'Italy' 'Australia' 'Indonesia' 'Chinese Taipei'
+ 'Bermuda' 'Korea' 'Malaysia' 'Panama' 'Greece' 'Chile' 'Belgium'
+ 'Curaçao' 'Euro area']"
+L_CP_SECTOR,['A' 'N' 'F' 'I' 'B' 'C' 'U' 'X' 'K' 'P' 'G' 'H' 'M']
+Counterparty sector,"['All sectors' 'Non-banks, total' 'Non-bank financial institutions'
+ 'Banks, related offices' 'Banks, total' 'Non-financial corporations'
+ 'Unallocated by sector' 'Residual by sector'
+ 'Unallocated non-financial sectors' 'Non-financial sectors'
+ 'General government' 'Households and NPISHs' 'Banks, central banks']"
+L_CP_COUNTRY,250 unique values (too many to display)
+Counterparty country,251 unique values (too many to display)
+L_POS_TYPE,['N' 'R' 'A' 'U']
+Position type,['Cross-border' 'Local' 'All' 'Unallocated']
+TIME_FORMAT,0 instances
+Time Format,0 instances
+COLLECTION,0 instances
+Collection Indicator,0 instances
+ORG_VISIBILITY,0 instances
+Organisation visibility,0 instances
+Series,603799 unique values (too many to display)
+1977-Q4,14134 instances
+1978-Q1,28759 instances
+1978-Q2,29024 instances
+1978-Q3,29294 instances
+1978-Q4,45275 instances
+1979-Q1,41649 instances
+1979-Q2,41901 instances
+1979-Q3,42102 instances
+1979-Q4,42658 instances
+1980-Q1,42925 instances
+1980-Q2,43463 instances
+1980-Q3,43113 instances
+1980-Q4,43343 instances
+1981-Q1,45039 instances
+1981-Q2,44136 instances
+1981-Q3,44316 instances
+1981-Q4,49343 instances
+1982-Q1,44752 instances
+1982-Q2,44818 instances
+1982-Q3,44733 instances
+1982-Q4,41520 instances
+1983-Q1,49236 instances
+1983-Q2,44905 instances
+1983-Q3,44848 instances
+1983-Q4,53968 instances
+1984-Q1,49549 instances
+1984-Q2,50185 instances
+1984-Q3,50137 instances
+1984-Q4,53448 instances
+1985-Q1,51887 instances
+1985-Q2,52198 instances
+1985-Q3,52335 instances
+1985-Q4,57919 instances
+1986-Q1,53451 instances
+1986-Q2,53570 instances
+1986-Q3,53570 instances
+1986-Q4,54283 instances
+1987-Q1,53656 instances
+1987-Q2,53793 instances
+1987-Q3,53874 instances
+1987-Q4,55629 instances
+1988-Q1,54518 instances
+1988-Q2,54491 instances
+1988-Q3,54505 instances
+1988-Q4,54713 instances
+1989-Q1,54941 instances
+1989-Q2,57171 instances
+1989-Q3,55202 instances
+1989-Q4,61629 instances
+1990-Q1,55943 instances
+1990-Q2,56210 instances
+1990-Q3,56201 instances
+1990-Q4,59509 instances
+1991-Q1,56332 instances
+1991-Q2,56144 instances
+1991-Q3,56280 instances
+1991-Q4,66461 instances
+1992-Q1,55748 instances
+1992-Q2,55720 instances
+1992-Q3,56071 instances
+1992-Q4,59239 instances
+1993-Q1,55957 instances
+1993-Q2,56078 instances
+1993-Q3,56092 instances
+1993-Q4,65562 instances
+1994-Q1,58377 instances
+1994-Q2,58645 instances
+1994-Q3,58620 instances
+1994-Q4,64742 instances
+1995-Q1,60442 instances
+1995-Q2,60571 instances
+1995-Q3,60611 instances
+1995-Q4,82026 instances
+1996-Q1,96622 instances
+1996-Q2,96071 instances
+1996-Q3,96007 instances
+1996-Q4,114063 instances
+1997-Q1,114332 instances
+1997-Q2,114625 instances
+1997-Q3,118625 instances
+1997-Q4,130260 instances
+1998-Q1,119958 instances
+1998-Q2,119092 instances
+1998-Q3,119689 instances
+1998-Q4,140007 instances
+1999-Q1,125868 instances
+1999-Q2,126850 instances
+1999-Q3,124258 instances
+1999-Q4,129239 instances
+2000-Q1,125583 instances
+2000-Q2,125316 instances
+2000-Q3,127300 instances
+2000-Q4,138798 instances
+2001-Q1,128601 instances
+2001-Q2,126252 instances
+2001-Q3,125493 instances
+2001-Q4,143688 instances
+2002-Q1,133134 instances
+2002-Q2,134107 instances
+2002-Q3,134814 instances
+2002-Q4,144627 instances
+2003-Q1,155294 instances
+2003-Q2,141116 instances
+2003-Q3,141877 instances
+2003-Q4,153050 instances
+2004-Q1,164606 instances
+2004-Q2,145990 instances
+2004-Q3,146160 instances
+2004-Q4,147940 instances
+2005-Q1,157124 instances
+2005-Q2,162819 instances
+2005-Q3,156881 instances
+2005-Q4,169635 instances
+2006-Q1,158155 instances
+2006-Q2,161042 instances
+2006-Q3,157762 instances
+2006-Q4,159384 instances
+2007-Q1,157438 instances
+2007-Q2,159122 instances
+2007-Q3,161472 instances
+2007-Q4,169749 instances
+2008-Q1,167187 instances
+2008-Q2,171002 instances
+2008-Q3,164403 instances
+2008-Q4,183967 instances
+2009-Q1,168155 instances
+2009-Q2,168617 instances
+2009-Q3,171767 instances
+2009-Q4,166412 instances
+2010-Q1,171664 instances
+2010-Q2,183312 instances
+2010-Q3,169757 instances
+2010-Q4,178067 instances
+2011-Q1,169001 instances
+2011-Q2,174749 instances
+2011-Q3,175210 instances
+2011-Q4,179530 instances
+2012-Q1,188527 instances
+2012-Q2,228409 instances
+2012-Q3,191386 instances
+2012-Q4,209601 instances
+2013-Q1,191474 instances
+2013-Q2,203361 instances
+2013-Q3,231664 instances
+2013-Q4,341296 instances
+2014-Q1,356118 instances
+2014-Q2,340801 instances
+2014-Q3,321133 instances
+2014-Q4,432986 instances
+2015-Q1,378335 instances
+2015-Q2,389915 instances
+2015-Q3,379020 instances
+2015-Q4,434864 instances
+2016-Q1,396407 instances
+2016-Q2,387374 instances
+2016-Q3,383329 instances
+2016-Q4,430006 instances
+2017-Q1,436094 instances
+2017-Q2,387490 instances
+2017-Q3,424438 instances
+2017-Q4,426156 instances
+2018-Q1,404263 instances
+2018-Q2,397352 instances
+2018-Q3,396725 instances
+2018-Q4,406697 instances
+2019-Q1,387846 instances
+2019-Q2,388134 instances
+2019-Q3,390177 instances
+2019-Q4,388678 instances
+2020-Q1,405514 instances
+2020-Q2,384001 instances
+2020-Q3,398649 instances
+2020-Q4,393746 instances
+2021-Q1,415936 instances
+2021-Q2,391347 instances
+2021-Q3,394064 instances
+2021-Q4,423685 instances
+2022-Q1,430069 instances
+2022-Q2,384649 instances
+2022-Q3,420233 instances
+2022-Q4,386355 instances
+2023-Q1,401118 instances
+2023-Q2,387879 instances
+2023-Q3,393757 instances
+2023-Q4,390755 instances
+2024-Q1,395583 instances
+2024-Q2,428987 instances
+2024-Q3,407692 instances
