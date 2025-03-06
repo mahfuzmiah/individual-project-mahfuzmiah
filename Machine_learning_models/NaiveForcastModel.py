@@ -102,15 +102,17 @@ def main():
     print("Overall WMAPE:", overall_wmape)
 
     # Or compute per unique_id
-    wmape_by_series = results.groupby('unique_id').apply(
-        lambda x: wmape(x['y'], x['Naive']))
+    wmape_by_series = results.groupby('unique_id')[['y', 'Naive']].apply(
+        lambda x: wmape(x['y'], x['Naive'])
+    )
 
     series_id = 'AT_AL_Q'
     series_data = results[results['unique_id'] == series_id]
 
     # Group results by forecast date 'ds' and compute WMAPE for each period
-    wmape_by_date = results.groupby('ds').apply(
-        lambda group: wmape(group['y'], group['Naive']))
+    wmape_by_date = results.groupby('ds')[['y', 'Naive']].apply(
+        lambda x: wmape(x['y'], x['Naive'])
+    )
     plt.figure(figsize=(10, 5))
     plt.plot(series_data['ds'], series_data['y'], label='Actual', marker='o')
     plt.plot(series_data['ds'], series_data['Naive'],
@@ -124,7 +126,7 @@ def main():
     plt.ylabel("Value")
     plt.legend()
     plt.savefig(
-        '/Users/mahfuz/Final_project/Final_repo/Results_diagrams/NaiveForecast_AT_AL_Q.png')
+        '/Users/mahfuz/Final_project/Final_repo/Naive_Results_diagrams/NaiveForecast_AT_AL_Q.png')
     plt.show()  # Show the plot after saving
 
     # Plot WMAPE over time
@@ -135,7 +137,7 @@ def main():
     plt.title('WMAPE Over Time')
     plt.grid(True)
     plt.savefig(
-        '/Users/mahfuz/Final_project/Final_repo/Results_diagrams/WMAPE_over_time.png')
+        '/Users/mahfuz/Final_project/Final_repo/Naive_Results_diagrams/WMAPE_over_time.png')
     plt.show()
 
     # Plot for series 'US_ZW_U'
@@ -154,7 +156,7 @@ def main():
     plt.ylabel("Value")
     plt.legend()
     plt.savefig(
-        '/Users/mahfuz/Final_project/Final_repo/Results_diagrams/NaiveForecast_US_ZW_U.png')
+        '/Users/mahfuz/Final_project/Final_repo/Naive_Results_diagrams/NaiveForecast_US_ZW_U.png')
     plt.show()
 
 
