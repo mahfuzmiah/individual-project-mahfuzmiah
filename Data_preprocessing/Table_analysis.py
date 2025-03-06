@@ -1,8 +1,7 @@
 import pandas as pd
 
 # Define input file path
-# input_file = "/Users/mahfuz/Final_project/Final_repo/DataSets/CleanedCBSDataSet.csv"
-input_file = "/Users/mahfuz/Final_project/Final_repo/DataSets/WS_LBS_D_PUB_csv_col-3.csv"
+input_file = "/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/CleanedCBSDataSet.csv"
 
 # Load dataset
 data = pd.read_csv(input_file)
@@ -22,8 +21,8 @@ for col in data.columns:
         unique_values = data[col].dropna().unique()
 
         # Check if column is categorical (skip columns with too many unique values)
-        if len(unique_values) < 200:  # Adjust threshold if needed
-            unique_values_summary[col] = unique_values[:200]
+        if len(unique_values) < 250:  # Adjust threshold if needed
+            unique_values_summary[col] = unique_values[:250]
         else:
             unique_values_summary[col] = f"{len(unique_values)} unique values (too many to display)"
 
@@ -32,7 +31,7 @@ unique_values_df = pd.DataFrame(list(unique_values_summary.items()), columns=[
                                 "Column", "Example Unique Values"])
 
 # Save to a file (optional)
-output_file = "/Users/mahfuz/Final_project/Final_repo/DataSets/UniqueColumnSummary.csv"
+output_file = "/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/UniqueColumnSummary.csv"
 unique_values_df.to_csv(output_file, index=False)
 
 print(f"Unique values per column summary saved to {output_file}.")
