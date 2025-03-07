@@ -126,7 +126,7 @@ def main():
     plt.ylabel("Value")
     plt.legend()
     plt.savefig(
-        '/Users/mahfuz/Final_project/Final_repo/Naive_Results_diagrams/NaiveForecast_AT_AL_Q.png')
+        '/Users/mahfuz/Final_project/Final_repo/Diagrams/Naive_Results_diagrams/NaiveForecast_AT_AL_Q.png')
     plt.show()  # Show the plot after saving
 
     # Plot WMAPE over time
@@ -137,7 +137,7 @@ def main():
     plt.title('WMAPE Over Time')
     plt.grid(True)
     plt.savefig(
-        '/Users/mahfuz/Final_project/Final_repo/Naive_Results_diagrams/WMAPE_over_time.png')
+        '/Users/mahfuz/Final_project/Final_repo/Diagrams/Naive_Results_diagrams/WMAPE_over_time.png')
     plt.show()
 
     # Plot for series 'US_ZW_U'
@@ -156,7 +156,7 @@ def main():
     plt.ylabel("Value")
     plt.legend()
     plt.savefig(
-        '/Users/mahfuz/Final_project/Final_repo/Naive_Results_diagrams/NaiveForecast_US_ZW_U.png')
+        '/Users/mahfuz/Final_project/Final_repo/Diagrams/Naive_Results_diagrams/NaiveForecast_US_ZW_U.png')
     plt.show()
 
 
