@@ -1,7 +1,7 @@
 
-    composite_variability = {}
+  composite_variability = {}
 
-    for uid, group in df.groupby('unique_id'):
+   for uid, group in df.groupby('unique_id'):
         group = group.set_index('ds').sort_index()
         try:
             # Perform seasonal decomposition (adjust period as needed; here period=4 for quarterly data)
