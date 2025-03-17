@@ -201,7 +201,7 @@ consolidated = pd.DataFrame(
 # 9. Reset index (optional) and save the consolidated results
 consolidated = consolidated.reset_index(drop=True)
 print(
-    f"Reduced the dataset from {len(data)} to {len(consolidated)} rows.")
+    f"Reduced the dataset from {len(data)} to {len(consolidated)} rows after consolidation.")
 
 
 # Remove columns from 1983 to 2004-Q4

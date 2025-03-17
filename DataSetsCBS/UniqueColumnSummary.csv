@@ -1,153 +1,226 @@
 Column,Example Unique Values
-index,12273 instances
-L_REP_CTY,"['AT' 'AU' 'BE' 'BR' 'CA' 'CH' 'CL' 'DE' 'DK' 'ES' 'FI' 'FR' 'GB' 'GR'
- 'IE' 'IN' 'IT' 'JP' 'KR' 'MX' 'NL' 'PA' 'PT' 'SE' 'SG' 'TR' 'TW' 'US']"
-L_CP_COUNTRY,"['AD' 'AE' 'AF' 'AI' 'AL' 'AM' 'AN' 'AO' 'AR' 'AT' 'AU' 'AW' 'AZ' 'BA'
- 'BB' 'BD' 'BE' 'BF' 'BG' 'BH' 'BI' 'BJ' 'BM' 'BN' 'BO' 'BQ' 'BR' 'BS'
- 'BT' 'BW' 'BY' 'BZ' 'C9' 'CA' 'CD' 'CF' 'CG' 'CH' 'CI' 'CL' 'CM' 'CN'
- 'CO' 'CR' 'CS' 'CU' 'CV' 'CW' 'CY' 'CZ' 'DD' 'DE' 'DK' 'DM' 'DO' 'DZ'
- 'EC' 'EE' 'EG' 'ER' 'ES' 'ET' 'FI' 'FJ' 'FO' 'FR' 'GA' 'GB' 'GD' 'GE'
- 'GG' 'GH' 'GI' 'GL' 'GM' 'GN' 'GQ' 'GR' 'GT' 'GW' 'GY' 'HK' 'HN' 'HR'
- 'HT' 'HU' 'ID' 'IE' 'IL' 'IM' 'IN' 'IQ' 'IR' 'IS' 'IT' 'JE' 'JM' 'JO'
- 'JP' 'KE' 'KG' 'KH' 'KI' 'KM' 'KN' 'KP' 'KR' 'KW' 'KY' 'KZ' 'LA' 'LB'
- 'LC' 'LI' 'LK' 'LR' 'LS' 'LT' 'LU' 'LV' 'LY' 'MA' 'MD' 'ME' 'MG' 'MH'
- 'MK' 'ML' 'MM' 'MN' 'MO' 'MR' 'MT' 'MU' 'MV' 'MW' 'MX' 'MY' 'MZ' 'NC'
- 'NE' 'NG' 'NI' 'NL' 'NO' 'NP' 'NR' 'NZ' 'OM' 'PA' 'PE' 'PF' 'PG' 'PH'
- 'PK' 'PL' 'PS' 'PT' 'PU' 'PY' 'QA' 'RO' 'RS' 'RU' 'RW' 'SA' 'SB' 'SC'
- 'SD' 'SE' 'SG' 'SI' 'SK' 'SL' 'SM' 'SN' 'SO' 'SR' 'SS' 'ST' 'SU' 'SV'
- 'SY' 'SZ' 'TC' 'TD' 'TG' 'TH' 'TJ' 'TM' 'TN' 'TR' 'TT' 'TW' 'TZ' 'UA'
- 'UG' 'US' 'UY' 'UZ' 'VA' 'VC' 'VE' 'VG' 'VN' 'VU' 'WS' 'YE' 'YU' 'ZA'
- 'ZM' 'ZW' 'DJ' 'FK' 'FM' 'PW' 'SH' 'TL' 'TO' 'TV' 'WF' 'AG' 'SX' 'MS']"
-CBS_BASIS,['F' 'O' 'Q' 'U']
-1983-Q4,12273 instances
-1984-Q2,12273 instances
-1984-Q4,12273 instances
-1985-Q2,12273 instances
-1985-Q4,12273 instances
-1986-Q2,12273 instances
-1986-Q4,12273 instances
-1987-Q2,12273 instances
-1987-Q4,12273 instances
-1988-Q2,12273 instances
-1988-Q4,12273 instances
-1989-Q2,12273 instances
-1989-Q4,12273 instances
-1990-Q2,12273 instances
-1990-Q4,12273 instances
-1991-Q2,12273 instances
-1991-Q4,12273 instances
-1992-Q2,12273 instances
-1992-Q4,12273 instances
-1993-Q2,12273 instances
-1993-Q4,12273 instances
-1994-Q2,12273 instances
-1994-Q4,12273 instances
-1995-Q2,12273 instances
-1995-Q4,12273 instances
-1996-Q2,12273 instances
-1996-Q4,12273 instances
-1997-Q2,12273 instances
-1997-Q4,12273 instances
-1998-Q2,12273 instances
-1998-Q4,12273 instances
-1999-Q2,12273 instances
-1999-Q4,12273 instances
-2000-Q1,12273 instances
-2000-Q2,12273 instances
-2000-Q3,12273 instances
-2000-Q4,12273 instances
-2001-Q1,12273 instances
-2001-Q2,12273 instances
-2001-Q3,12273 instances
-2001-Q4,12273 instances
-2002-Q1,12273 instances
-2002-Q2,12273 instances
-2002-Q3,12273 instances
-2002-Q4,12273 instances
-2003-Q1,12273 instances
-2003-Q2,12273 instances
-2003-Q3,12273 instances
-2003-Q4,12273 instances
-2004-Q1,12273 instances
-2004-Q2,12273 instances
-2004-Q3,12273 instances
-2004-Q4,12273 instances
-2005-Q1,12273 instances
-2005-Q2,12273 instances
-2005-Q3,12273 instances
-2005-Q4,12273 instances
-2006-Q1,12273 instances
-2006-Q2,12273 instances
-2006-Q3,12273 instances
-2006-Q4,12273 instances
-2007-Q1,12273 instances
-2007-Q2,12273 instances
-2007-Q3,12273 instances
-2007-Q4,12273 instances
-2008-Q1,12273 instances
-2008-Q2,12273 instances
-2008-Q3,12273 instances
-2008-Q4,12273 instances
-2009-Q1,12273 instances
-2009-Q2,12273 instances
-2009-Q3,12273 instances
-2009-Q4,12273 instances
-2010-Q1,12273 instances
-2010-Q2,12273 instances
-2010-Q3,12273 instances
-2010-Q4,12273 instances
-2011-Q1,12273 instances
-2011-Q2,12273 instances
-2011-Q3,12273 instances
-2011-Q4,12273 instances
-2012-Q1,12273 instances
-2012-Q2,12273 instances
-2012-Q3,12273 instances
-2012-Q4,12273 instances
-2013-Q1,12273 instances
-2013-Q2,12273 instances
-2013-Q3,12273 instances
-2013-Q4,12273 instances
-2014-Q1,12273 instances
-2014-Q2,12273 instances
-2014-Q3,12273 instances
-2014-Q4,12273 instances
-2015-Q1,12273 instances
-2015-Q2,12273 instances
-2015-Q3,12273 instances
-2015-Q4,12273 instances
-2016-Q1,12273 instances
-2016-Q2,12273 instances
-2016-Q3,12273 instances
-2016-Q4,12273 instances
-2017-Q1,12273 instances
-2017-Q2,12273 instances
-2017-Q3,12273 instances
-2017-Q4,12273 instances
-2018-Q1,12273 instances
-2018-Q2,12273 instances
-2018-Q3,12273 instances
-2018-Q4,12273 instances
-2019-Q1,12273 instances
-2019-Q2,12273 instances
-2019-Q3,12273 instances
-2019-Q4,12273 instances
-2020-Q1,12273 instances
-2020-Q2,12273 instances
-2020-Q3,12273 instances
-2020-Q4,12273 instances
-2021-Q1,12273 instances
-2021-Q2,12273 instances
-2021-Q3,12273 instances
-2021-Q4,12273 instances
-2022-Q1,12273 instances
-2022-Q2,12273 instances
-2022-Q3,12273 instances
-2022-Q4,12273 instances
-2023-Q1,12273 instances
-2023-Q2,12273 instances
-2023-Q3,12273 instances
-2023-Q4,12273 instances
-2024-Q1,12273 instances
-2024-Q2,12273 instances
-2024-Q3,12273 instances
+FREQ,['Q']
+Frequency,['Quarterly']
+L_MEASURE,['S']
+Measure,['Amounts outstanding / Stocks']
+L_REP_CTY,"['SE' 'DK' 'JP' 'CA' 'CH' 'FR' 'PT' 'NL' 'GB' 'MX' 'GR' 'FI' 'SG' 'IN'
+ 'BE' 'TR' 'IE' 'KR' 'AT' 'PA' 'CL' 'TW' 'IT' 'AU' 'US' 'ES' 'DE' 'BR']"
+Reporting country,"['Sweden' 'Denmark' 'Japan' 'Canada' 'Switzerland' 'France' 'Portugal'
+ 'Netherlands' 'United Kingdom' 'Mexico' 'Greece' 'Finland' 'Singapore'
+ 'India' 'Belgium' 'Türkiye' 'Ireland' 'Korea' 'Austria' 'Panama' 'Chile'
+ 'Chinese Taipei' 'Italy' 'Australia' 'United States' 'Spain' 'Germany'
+ 'Brazil']"
+CBS_BANK_TYPE,['4B' '4R' '4C' '4O']
+CBS bank type,"['Domestic banks' 'Domestic banks(4B), excl. domestic positions'
+ 'Inside-area foreign banks consolidated by their parent'
+ 'All excluding 4C banks, excl. domestic positions (= 4R + 4Q +4V)']"
+CBS_BASIS,['Q' 'F' 'U' 'O']
+CBS reporting basis,"['Net risk transfers (Inward-Outward)' 'Immediate counterparty basis'
+ 'Guarantor basis' 'Outward risk transfers']"
+L_POSITION,['C']
+Balance sheet position,['Total claims']
+L_INSTR,['A']
+Type of instruments,['All instruments']
+REM_MATURITY,['A']
+Remaining maturity,['Total (all maturities)']
+CURR_TYPE_BOOK,['TO1']
+Currency type of booking location,['All currencies']
+L_CP_SECTOR,['A']
+Counterparty sector,['All sectors']
+L_CP_COUNTRY,"['SM' 'SO' 'SY' 'SZ' 'TC' 'TM' 'VA' 'GG' 'GH' 'GI' 'GM' 'GN' 'GR' 'GT'
+ 'HK' 'HN' 'HR' 'HT' 'HU' 'ID' 'IE' 'IL' 'IM' 'IN' 'IQ' 'IS' 'IT' 'JE'
+ 'JM' 'JO' 'JP' 'KE' 'KR' 'KW' 'KY' 'KZ' 'LA' 'CG' 'CH' 'CI' 'CL' 'CM'
+ 'CN' 'CO' 'CR' 'CS' 'CU' 'CW' 'CY' 'CZ' 'DE' 'DJ' 'DK' 'DO' 'DZ' 'EC'
+ 'EE' 'EG' 'ES' 'FI' 'FR' 'GA' 'GB' 'GE' 'AD' 'AE' 'AM' 'AN' 'AO' 'AR'
+ 'AT' 'AU' 'AZ' 'BA' 'BB' 'BD' 'BE' 'BG' 'BH' 'BM' 'BN' 'BO' 'BR' 'BS'
+ 'BW' 'BY' 'CA' 'ET' 'FJ' 'FO' 'GL' 'IR' 'KH' 'KP' 'LS' 'MM' 'MN' 'MW'
+ 'NE' 'PS' 'RW' 'SD' 'SL' 'UY' 'UZ' 'VE' 'VN' 'YE' 'ZA' 'ZM' 'ZW' 'AF'
+ 'PE' 'PG' 'PH' 'PK' 'PL' 'PT' 'PU' 'PY' 'QA' 'RO' 'RS' 'RU' 'SA' 'SC'
+ 'SE' 'SG' 'SI' 'SK' 'SN' 'TH' 'TN' 'TR' 'TT' 'TW' 'TZ' 'UA' 'UG' 'US'
+ 'LB' 'LC' 'LI' 'LK' 'LR' 'LT' 'LU' 'LV' 'LY' 'MA' 'MD' 'MH' 'MK' 'MO'
+ 'MT' 'MU' 'MX' 'MY' 'MZ' 'NC' 'NG' 'NL' 'NO' 'NP' 'NZ' 'OM' 'PA' 'SR'
+ 'SS' 'NI' 'SV' 'MV' 'ME' 'DM' 'CD' 'BZ' 'BJ' 'AL' 'KG' 'NR' 'MR' 'BI'
+ 'BQ' 'BT' 'VC' 'TL' 'PF' 'MG' 'ML' 'GY' 'CV' 'CF' 'AW' 'BF' 'GD' 'FK'
+ 'SB' 'SX' 'VG' 'TD' 'AG' 'AI' 'GQ' 'WF' 'ER' 'FM' 'GW' 'KI' 'KM' 'MS'
+ 'ST' 'TG' 'TJ' 'TO' 'VU' 'WS' 'TV' 'KN' 'SH' 'PW']"
+Counterparty country,"['San Marino' 'Somalia' 'Syria' 'Eswatini' 'Turks and Caicos Islands'
+ 'Turkmenistan' 'Vatican City State' 'Guernsey' 'Ghana' 'Gibraltar'
+ 'The Gambia' 'Guinea' 'Greece' 'Guatemala' 'Hong Kong SAR' 'Honduras'
+ 'Croatia' 'Haiti' 'Hungary' 'Indonesia' 'Ireland' 'Israel' 'Isle of Man'
+ 'India' 'Iraq' 'Iceland' 'Italy' 'Jersey' 'Jamaica' 'Jordan' 'Japan'
+ 'Kenya' 'Korea' 'Kuwait' 'Cayman Islands' 'Kazakhstan' 'Laos'
+ 'Republic of Congo' 'Switzerland' ""Côte d'Ivoire"" 'Chile' 'Cameroon'
+ 'China' 'Colombia' 'Costa Rica' 'Serbia and Montenegro' 'Cuba' 'Curaçao'
+ 'Cyprus' 'Czechia' 'Germany' 'Djibouti' 'Denmark' 'Dominican Republic'
+ 'Algeria' 'Ecuador' 'Estonia' 'Egypt' 'Spain' 'Finland' 'France' 'Gabon'
+ 'United Kingdom' 'Georgia' 'Andorra' 'United Arab Emirates' 'Armenia'
+ 'Netherlands Antilles' 'Angola' 'Argentina' 'Austria' 'Australia'
+ 'Azerbaijan' 'Bosnia and Herzegovina' 'Barbados' 'Bangladesh' 'Belgium'
+ 'Bulgaria' 'Bahrain' 'Bermuda' 'Brunei' 'Bolivia' 'Brazil' 'The Bahamas'
+ 'Botswana' 'Belarus' 'Canada' 'Ethiopia' 'Fiji' 'Faeroe Islands'
+ 'Greenland' 'Iran' 'Cambodia' 'North Korea' 'Lesotho' 'Myanmar'
+ 'Mongolia' 'Malawi' 'Niger' 'Palestinian Territory' 'Rwanda' 'Sudan'
+ 'Sierra Leone' 'Uruguay' 'Uzbekistan' 'Venezuela' 'Vietnam' 'Yemen'
+ 'South Africa' 'Zambia' 'Zimbabwe' 'Afghanistan' 'Peru'
+ 'Papua New Guinea' 'Philippines' 'Pakistan' 'Poland' 'Portugal'
+ 'U.S. Miscellaneous Pacific Islands' 'Paraguay' 'Qatar' 'Romania'
+ 'Serbia' 'Russia' 'Saudi Arabia' 'Seychelles' 'Sweden' 'Singapore'
+ 'Slovenia' 'Slovakia' 'Senegal' 'Thailand' 'Tunisia' 'Türkiye'
+ 'Trinidad and Tobago' 'Chinese Taipei' 'Tanzania' 'Ukraine' 'Uganda'
+ 'United States' 'Lebanon' 'St Lucia' 'Liechtenstein' 'Sri Lanka'
+ 'Liberia' 'Lithuania' 'Luxembourg' 'Latvia' 'Libya' 'Morocco' 'Moldova'
+ 'Marshall Islands' 'North Macedonia' 'Macao SAR' 'Malta' 'Mauritius'
+ 'Mexico' 'Malaysia' 'Mozambique' 'Namibia' 'New Caledonia' 'Nigeria'
+ 'Netherlands' 'Norway' 'Nepal' 'New Zealand' 'Oman' 'Panama' 'Suriname'
+ 'South Sudan' 'Nicaragua' 'El Salvador' 'Maldives' 'Montenegro'
+ 'Dominica' 'Democratic Republic of the Congo' 'Belize' 'Benin' 'Albania'
+ 'Kyrgyz Republic' 'Nauru' 'Mauritania' 'Burundi'
+ 'Bonaire, Sint Eustatius and Saba' 'Bhutan'
+ 'St Vincent and the Grenadines' 'East Timor' 'French Polynesia'
+ 'Madagascar' 'Mali' 'Guyana' 'Cabo Verde' 'Central African Republic'
+ 'Aruba' 'Burkina Faso' 'Grenada' 'Falkland Islands' 'Solomon Islands'
+ 'Sint Maarten' 'British Virgin Islands' 'Chad' 'Antigua and Barbuda'
+ 'Anguilla' 'Equatorial Guinea' 'Wallis and Futuna Islands' 'Eritrea'
+ 'Micronesia' 'Guinea-Bissau' 'Kiribati' 'Comoros' 'Montserrat'
+ 'São Tomé and Príncipe' 'Togo' 'Tajikistan' 'Tonga' 'Vanuatu' 'Samoa'
+ 'Tuvalu' 'St Kitts and Nevis' 'St Helena, Ascension and Tristan da Cunha'
+ 'Palau']"
+TIME_FORMAT,0 instances
+Time Format,0 instances
+COLLECTION,['E']
+Collection Indicator,['End of period']
+ORG_VISIBILITY,['E']
+Organisation visibility,['Public']
+Series,28615 unique values (too many to display)
+1983-Q4,1764 instances
+1984-Q2,1752 instances
+1984-Q4,1790 instances
+1985-Q2,1994 instances
+1985-Q4,2348 instances
+1986-Q2,2326 instances
+1986-Q4,2339 instances
+1987-Q2,2357 instances
+1987-Q4,2380 instances
+1988-Q2,2396 instances
+1988-Q4,2407 instances
+1989-Q2,2362 instances
+1989-Q4,2406 instances
+1990-Q2,2385 instances
+1990-Q4,2416 instances
+1991-Q2,2418 instances
+1991-Q4,2409 instances
+1992-Q2,2411 instances
+1992-Q4,2363 instances
+1993-Q2,2388 instances
+1993-Q4,2495 instances
+1994-Q2,2538 instances
+1994-Q4,2531 instances
+1995-Q2,2549 instances
+1995-Q4,2566 instances
+1996-Q2,2614 instances
+1996-Q4,2635 instances
+1997-Q2,2638 instances
+1997-Q4,2669 instances
+1998-Q2,2670 instances
+1998-Q4,2732 instances
+1999-Q2,5468 instances
+1999-Q4,5878 instances
+2000-Q1,5921 instances
+2000-Q2,5929 instances
+2000-Q3,5822 instances
+2000-Q4,6399 instances
+2001-Q1,6273 instances
+2001-Q2,6330 instances
+2001-Q3,6295 instances
+2001-Q4,6381 instances
+2002-Q1,6303 instances
+2002-Q2,6429 instances
+2002-Q3,6413 instances
+2002-Q4,6611 instances
+2003-Q1,6706 instances
+2003-Q2,7376 instances
+2003-Q3,7451 instances
+2003-Q4,8036 instances
+2004-Q1,7802 instances
+2004-Q2,8067 instances
+2004-Q3,8121 instances
+2004-Q4,8129 instances
+2005-Q1,11049 instances
+2005-Q2,11952 instances
+2005-Q3,11903 instances
+2005-Q4,12156 instances
+2006-Q1,12182 instances
+2006-Q2,12456 instances
+2006-Q3,12513 instances
+2006-Q4,12591 instances
+2007-Q1,12646 instances
+2007-Q2,12764 instances
+2007-Q3,13540 instances
+2007-Q4,13682 instances
+2008-Q1,13769 instances
+2008-Q2,13846 instances
+2008-Q3,13894 instances
+2008-Q4,13712 instances
+2009-Q1,13838 instances
+2009-Q2,13944 instances
+2009-Q3,13961 instances
+2009-Q4,13739 instances
+2010-Q1,14979 instances
+2010-Q2,14955 instances
+2010-Q3,15169 instances
+2010-Q4,14596 instances
+2011-Q1,14757 instances
+2011-Q2,14882 instances
+2011-Q3,14712 instances
+2011-Q4,14852 instances
+2012-Q1,14688 instances
+2012-Q2,15426 instances
+2012-Q3,15395 instances
+2012-Q4,15473 instances
+2013-Q1,15345 instances
+2013-Q2,15309 instances
+2013-Q3,15585 instances
+2013-Q4,18234 instances
+2014-Q1,18797 instances
+2014-Q2,18818 instances
+2014-Q3,18585 instances
+2014-Q4,18702 instances
+2015-Q1,19102 instances
+2015-Q2,19051 instances
+2015-Q3,19082 instances
+2015-Q4,18743 instances
+2016-Q1,18782 instances
+2016-Q2,18754 instances
+2016-Q3,18706 instances
+2016-Q4,18751 instances
+2017-Q1,18802 instances
+2017-Q2,18936 instances
+2017-Q3,19051 instances
+2017-Q4,19054 instances
+2018-Q1,19034 instances
+2018-Q2,18985 instances
+2018-Q3,19048 instances
+2018-Q4,18739 instances
+2019-Q1,19066 instances
+2019-Q2,19127 instances
+2019-Q3,19191 instances
+2019-Q4,19216 instances
+2020-Q1,19170 instances
+2020-Q2,19010 instances
+2020-Q3,19105 instances
+2020-Q4,19041 instances
+2021-Q1,18962 instances
+2021-Q2,19093 instances
+2021-Q3,19103 instances
+2021-Q4,18421 instances
+2022-Q1,18762 instances
+2022-Q2,18764 instances
+2022-Q3,18733 instances
+2022-Q4,18719 instances
+2023-Q1,18007 instances
+2023-Q2,18084 instances
+2023-Q3,17909 instances
+2023-Q4,17975 instances
+2024-Q1,18068 instances
+2024-Q2,18066 instances
+2024-Q3,17961 instances

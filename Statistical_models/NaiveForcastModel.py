@@ -37,6 +37,8 @@ def main():
         }) + '-01'
     )
     # Reorder columns
+    data_long_train['ds'] = data_long_train['ds'] + pd.offsets.QuarterEnd()
+
     data_long_train = data_long_train[['ds', 'unique_id', 'y']]
     # Save cleaned training data (optional)
     data_long_train.to_csv(
