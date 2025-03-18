@@ -1,5 +1,6 @@
 
 # Importing required libraries
+import time
 import numpy as np
 
 from statsforecast import StatsForecast
@@ -17,23 +18,30 @@ def wmape(y_true, y_pred):
     return (abs(y_true - y_pred)).sum() / abs(y_true).sum()
 
 
-def arima_test_method():
+def arima_test_method(subset_length):
+
     train = pd.read_csv(
         '/Users/mahfuz/Final_project/Final_repo/long_data.csv', parse_dates=['ds'])
     test = pd.read_csv(
         '/Users/mahfuz/Final_project/Final_repo/long_data_test.csv', parse_dates=['ds'])
-
-    subset_uids = train['unique_id'].unique()[:1]
+    if subset_length != 5:
+        subset_length = len(train['unique_id'].unique())
+    subset_uids = train['unique_id'].unique()[:subset_length]
     train = train[train['unique_id'].isin(subset_uids)]
     test = test[test['unique_id'].isin(subset_uids)]
 
     # Sort training data by date
     df = train.sort_values('ds')
+    results_list = []
 
     # ---- ARIMA Forecasting with auto_arima ----
+    total_fit_time = 0.0
+    total_forecast_time = 0.0
+
     for uid, group in df.groupby('unique_id'):
         group = group.sort_values('ds').set_index('ds')
         try:
+            fit_start = time.time()
             stepwise_fit = auto_arima(group['y'], start_p=1, start_q=1,
                                       max_p=3, max_q=3, m=4,
                                       seasonal=True,
@@ -41,14 +49,15 @@ def arima_test_method():
                                       error_action='ignore',
                                       suppress_warnings=True,
                                       stepwise=True)
+            fit_end = time.time()
+            total_fit_time += (fit_end - fit_start)
         except Exception as e:
             print(f"Could not fit model for series {uid}: {e}")
             continue
 
-        print(f"Summary for series {uid}:")
-        print(stepwise_fit.summary())
+       # print(f"Summary for series {uid}:")
+       # print(stepwise_fit.summary())
         group = df[df['unique_id'] == 'AT_AD_F'].sort_values('ds')
-        print(group['y'].describe())
         # Select corresponding test series
         test_series = test[test['unique_id'] == uid].sort_values('ds')
         if test_series.empty:
@@ -56,23 +65,66 @@ def arima_test_method():
             continue
         test_series = test_series.set_index('ds')['y']
         n_periods = len(test_series)
+        forecast_start = time.time()
         forecast = stepwise_fit.predict(n_periods=n_periods)
-        print(forecast)
+        forecast_end = time.time()
+        total_forecast_time += (forecast_end - forecast_start)
+
         # Align forecast with test index
         forecast_index = test_series.index[:n_periods]
         forecast_series = pd.Series(
             forecast, index=forecast_index, name='forecast')
-        print(f"forecast_series= {forecast_series}")
 
-        merged = pd.concat([test_series, forecast_series], axis=1).dropna()
+        merged = pd.concat([test_series, forecast_series], axis=1)
+        merged['unique_id'] = uid  # record which series this is
+        merged = merged.dropna(subset=['y'])  # drop if no actual value
+
+        # Store merged results
+        results_list.append(merged)
         error = wmape(merged['y'], merged['forecast'])
         print(
             f"UID={uid}, WMAPE={error:.4f}, ARIMA Model={stepwise_fit.order}, Seasonal={stepwise_fit.seasonal_order}")
+        # Concatenate all forecast results into a single DataFrame
+    if not results_list:
+        print("No forecast results available.")
+        return
+    results = pd.concat(results_list)
+
+    wmape_by_date = results.groupby(results.index).apply(
+        lambda x: wmape(x['y'], x['forecast']))
+    print("Total fit time: {:.2f} seconds".format(total_fit_time))
+    print("Total forecast time: {:.2f} seconds".format(total_forecast_time))
+    # --- Plotting ---
+    # (A) Plot forecasts vs. actuals for a selected series (example: first series in our subset)
+    selected_series = results[results['unique_id'] == subset_uids[0]]
+    plt.figure(figsize=(10, 5))
+    plt.plot(selected_series.index,
+             selected_series['y'], label='Actual', marker='o')
+    plt.plot(selected_series.index,
+             selected_series['forecast'], label='Forecast (ARIMA)', marker='x')
+    plt.title(f"ARIMA Forecast vs Actual for {subset_uids[0]}")
+    plt.xlabel("Date")
+    plt.ylabel("Value")
+    plt.legend()
+    plt.savefig(
+        '/Users/mahfuz/Final_project/Final_repo/Diagrams/Arima_diagrams/Arima_forecast_selected_series.png')
+    plt.show()
+    plt.close()
+
+    # (B) Plot WMAPE over time (each forecast date)
+    plt.figure(figsize=(10, 5))
+    plt.plot(wmape_by_date.index, wmape_by_date.values, marker='o')
+    plt.xlabel('Forecast Date')
+    plt.ylabel('WMAPE')
+    plt.title('WMAPE Over Time (ARIMA Forecasts)')
+    plt.grid(True)
+    plt.savefig(
+        '/Users/mahfuz/Final_project/Final_repo/Diagrams/Arima_diagrams/Arima_WMAPE_over_time.png')
+    plt.show()
+    plt.close()
 
 
-def main():
-    # --- Load Cleaned Data ---
-    # Replace with your file paths
+def composite_variability():
     train = pd.read_csv(
         '/Users/mahfuz/Final_project/Final_repo/long_data.csv', parse_dates=['ds'])
     test = pd.read_csv(
@@ -142,50 +194,11 @@ def main():
     else:
         print("No series qualified under the early-data filter.")
 
-    # for uid, group in df.groupby('unique_id'):
-    #     group = group.sort_values('ds')
-    #     group = group.set_index('ds')
-    #     result = seasonal_decompose(
-    #         group['y'], model='additive', period=4)
-    #     # Fit auto_arima function to AirPassengers dataset
-    #     try:
-    #         stepwise_fit = auto_arima(group['y'], start_p=1, start_q=1,
-    #                                   max_p=3, max_q=3, m=4,
-    #                                   seasonal=True,
-    #                                   d=None, D=1, trace=True,
-    #                                   error_action='ignore',   # we don't want to know if an order does not work
-    #                                   suppress_warnings=True,  # we don't want convergence warnings
-    #                                   stepwise=True)           # set to stepwise
-    #     except Exception as e:
-    #         print(f"Could not fit model for series {uid}: {e}")
-    #         continue
-    #     # To print the summary
-    #     print(f"Summary for series {uid}:")
-    #     # Generate forecasts for the length of the test set
-    #     print(stepwise_fit.summary())
-    #     test_series = test[test['unique_id'] == uid].sort_values('ds')
-    #     if test_series.empty:
-    #         print(f"No test data for series {uid}")
-    #         continue
-    #     test_series = test_series.set_index('ds')['y']
-    #     n_periods = len(test_series)
-    #     forecast = stepwise_fit.predict(n_periods=n_periods)
 
-    #     # Align the forecast with the test index
-    #     forecast_index = test_series.index[:n_periods]  # same dates as test
-    #     forecast_series = pd.Series(
-    #         forecast, index=forecast_index, name='forecast')
-
-    #     # Merge with the actual test data for evaluation
-    #     merged = pd.concat([test_series, forecast_series], axis=1).dropna()
-    #     # Compute WMAPE
-    #     error = wmape(merged['y'], merged['forecast'])
-    #     print(
-    #         f"UID={uid}, WMAPE={error:.4f}, ARIMA Model={stepwise_fit.order}, Seasonal={stepwise_fit.seasonal_order}")
-
-    # For testing, select a small subset of unique_id groups (e.g., first 3 unique ids)
+def main():
+    # composite_variability()
+    arima_test_method(5)
 
 
 if __name__ == '__main__':
-    arima_test_method()
-    # main()
+    main()
