@@ -317,10 +317,10 @@ def save_best_seasonal_decomposition(train, composite_variability, period=4):
 def main():
     train, test = load_data()
 
-    comp_variability = calculate_composite_variability(train)
-    save_best_seasonal_decomposition(train, comp_variability)
-    estimate_time_taken_for_series(5, train, test)
-    arima_test_method_parallel(200, train, test)
+    # comp_variability = calculate_composite_variability(train)
+    # save_best_seasonal_decomposition(train, comp_variability)
+    # estimate_time_taken_for_series(5, train, test)
+    arima_test_method_parallel(None, train, test)
 
 
 if __name__ == '__main__':
