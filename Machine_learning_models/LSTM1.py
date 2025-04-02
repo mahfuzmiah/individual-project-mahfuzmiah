@@ -1,6 +1,6 @@
 
 
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 import pandas as pd
 import numpy as np
 import time
@@ -70,7 +70,7 @@ NO_ITERATIONS = 200
 # Start timer before processing the rows
 start_time = time.time()
 # for i in range(len(train)):
-for i in range(65, 68, 1):
+for i in range(NO_ITERATIONS):
     # ---- Training on row i from training set ----
     train_series = train[train_time_series_cols].iloc[i].values
     # Check if the training series is constant
@@ -155,7 +155,7 @@ plt.ylabel("Value")
 plt.title("LSTM Forecast vs Actual for Row 0")
 plt.legend()
 plt.savefig(
-    '/Users/mahfuz/Final_project/Final_repo/Diagrams/LSTM_forecast_selected_series.png')
+    '/Users/mahfuz/Final_project/Final_repo/Diagrams/LSTM1_forecast_selected_series.png')
 plt.show()
 
 # Graph 2: WMAPE over time across the 200 rows
@@ -185,5 +185,5 @@ plt.ylabel("WMAPE")
 plt.title(f"WMAPE Over Time (LSTM Forecasts) Across {NO_ITERATIONS} Rows")
 plt.grid(True)
 plt.savefig(
-    '/Users/mahfuz/Final_project/Final_repo/Diagrams/LSTM_WMAPE_over_time.png')
+    '/Users/mahfuz/Final_project/Final_repo/Diagrams/LSTM1_WMAPE_over_time.png')
 plt.show()
