@@ -35,3 +35,22 @@ output_file = "/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/UniqueColumnSu
 unique_values_df.to_csv(output_file, index=False)
 
 print(f"Unique values per column summary saved to {output_file}.")
+
+
+# 1. Load your cleaned CBS file
+df = pd.read_csv(
+    "/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/CleanedCBSDataSet.csv")
+
+# 2. Identify the exposure column(s) — e.g. if your loan‐stock is in column "Exposure":
+exposure = df["Exposure"]
+
+# 3. Total observations
+total = len(exposure)
+
+# 4. Count missing and zero
+missing = exposure.isna().sum()
+zeros = (exposure == 0).sum()
+
+print(f"Total cells: {total}")
+print(f"Missing:     {missing}  ({missing/total:.1%})")
+print(f"Zero values: {zeros}  ({zeros/total:.1%})")
