@@ -1,0 +1,253 @@
+Column,Example Unique Values
+FREQ,['Q']
+Frequency,['Quarterly']
+L_MEASURE,['S' 'B']
+Measure,['Amounts outstanding / Stocks' 'Break in stocks']
+L_REP_CTY,"['AU' 'SE' 'IT' 'HK' 'BE' 'US' 'LU' 'GR' 'FI' 'SG' 'KR' 'JP' 'DK' 'CH'
+ 'PT' 'ES' 'GB' 'TW' 'BR' '5A' 'AT' 'TR' 'CL' 'FR' 'NL' 'CA' 'PA' 'NO'
+ 'DE' 'IN' 'MX' 'IE']"
+Reporting country,"['Australia' 'Sweden' 'Italy' 'Hong Kong SAR' 'Belgium' 'United States'
+ 'Luxembourg' 'Greece' 'Finland' 'Singapore' 'Korea' 'Japan' 'Denmark'
+ 'Switzerland' 'Portugal' 'Spain' 'United Kingdom' 'Chinese Taipei'
+ 'Brazil' 'All reporting countries' 'Austria' 'Türkiye' 'Chile' 'France'
+ 'Netherlands' 'Canada' 'Panama' 'Norway' 'Germany' 'India' 'Mexico'
+ 'Ireland']"
+CBS_BANK_TYPE,['4M' '4B' '4O' '4R' '4C' '4N']
+CBS bank type,"['All banks (=4B +4C + 4D +4E)' 'Domestic banks'
+ 'All excluding 4C banks, excl. domestic positions (= 4R + 4Q +4V)'
+ 'Domestic banks(4B), excl. domestic positions'
+ 'Inside-area foreign banks consolidated by their parent'
+ 'All including 4C banks, excl. domestic positions (=4O + 4C)']"
+CBS_BASIS,['F' 'Q' 'U' 'O']
+CBS reporting basis,"['Immediate counterparty basis' 'Net risk transfers (Inward-Outward)'
+ 'Guarantor basis' 'Outward risk transfers']"
+L_POSITION,['L' 'C' 'B' 'I' 'K' 'W' 'D' 'F' 'M' 'X']
+Balance sheet position,"['Total liabilities' 'Total claims' 'Local claims' 'International claims'
+ 'Capital / equity' 'Guarantees extended' 'Cross-border claims'
+ 'Total assets (financial and non-financial)' 'Local liabilities'
+ 'Credit commitments']"
+L_INSTR,['G' 'A' 'V' 'D']
+Type of instruments,['Loans and deposits' 'All instruments' 'Derivatives' 'Debt securities']
+REM_MATURITY,['A' 'U' 'N' 'M']
+Remaining maturity,"['Total (all maturities)' 'Up to and including 1 year' 'Over 2 years'
+ 'Over 1 year and up to and including 2 years']"
+CURR_TYPE_BOOK,['TO1' 'LC1']
+Currency type of booking location,['All currencies' 'Local currency']
+L_CP_SECTOR,['A' 'F' 'B' 'C' 'R' 'O' 'H' 'S']
+Counterparty sector,"['All sectors' 'Non-bank financial institutions' 'Banks, total'
+ 'Non-financial corporations' 'Non-bank private sector' 'Official sector'
+ 'Households and NPISHs' 'Non-financial private sector']"
+L_CP_COUNTRY,"['5J' '2Z' '3P' '1C' '1E' 'IR' 'KH' 'MM' 'ET' 'FJ' 'FM' 'FO' 'AF' '1W'
+ 'VC' 'VE' 'VN' 'YE' 'ZA' 'ZM' 'ZW' 'TW' 'TZ' 'UA' 'UG' 'US' 'UY' 'UZ'
+ 'SK' 'SV' 'TH' 'TN' 'TR' 'TV' 'TG' 'TJ' 'VU' 'WS' 'SR' 'SX' 'TC' 'RW'
+ 'SB' 'SH' 'SL' 'MN' 'MW' 'NI' 'HN' 'HU' 'ID' 'IE' 'IL' 'IM' 'GI' 'GQ'
+ 'GR' 'GT' 'FR' 'GB' 'GE' 'GG' 'GH' 'DO' 'DZ' 'EC' 'EE' 'EG' 'ES' 'FI'
+ 'CW' 'CY' 'CZ' 'DE' 'DJ' 'DK' 'CH' 'CI' 'CL' 'CM' 'CN' 'CO' 'CR' 'BS'
+ 'BW' 'BY' 'BZ' 'CA' 'BG' 'BH' 'BJ' 'BM' 'BN' 'BR' 'RO' 'RS' 'RU' 'SA'
+ 'SC' 'SE' 'SG' 'PG' 'PH' 'PK' 'PL' 'PT' 'PY' 'QA' 'NL' 'NO' 'NP' 'NZ'
+ 'OM' 'PA' 'PE' 'MU' 'MV' 'MX' 'MY' 'MZ' 'NG' 'MG' 'MH' 'MO' 'MT' 'LI'
+ 'LK' 'LR' 'LT' 'LU' 'MA' 'KE' 'KR' 'KW' 'KY' 'KZ' 'LA' 'LB' 'IN' 'IQ'
+ 'IS' 'IT' 'JE' 'JM' 'JO' 'JP' 'AI' 'SM' 'SO' 'SY' 'SZ' 'TM' 'VA' '5C'
+ '5M' 'AD' 'AE' 'AT' 'BE' 'HK' 'MK' 'GM' 'GN' 'GY' 'HR' 'SI' 'HT' 'SN'
+ 'TD' 'TL' 'TT' 'WF' 'CF' 'CG' 'CS' 'CU' 'DM' 'BI' 'FK' 'BT' 'GA' 'ER'
+ 'GW' 'AL' 'KG' 'AM' 'AN' 'KI' 'AO' 'AR' 'KP' 'LS' 'AU' 'AZ' 'MR' 'BA'
+ 'BB' 'BD' 'NE' 'BF' 'NR' 'PS' 'PW' 'SD' 'BO' 'ST' 'CD' 'TO' 'AW' 'GL'
+ 'CV' 'GD' 'PU' 'LC' 'LV' 'LY' 'MD' 'ME' 'ML' 'NC' 'PF' 'VG' 'YU' 'SS'
+ 'SU' 'C9' 'DD' 'KN' 'KM' 'AG' 'BQ' 'MS' '2N' '2S' '2T' '2U' '5R' '4T'
+ '4U' '4W' '4Y' '5K' '2H' '2O' '2R' '2W' '3C' '2B' '2C' '2D']"
+Counterparty country,"['All countries (total)' 'Residual West Indies UK'
+ 'All countries excluding residents' 'International organisations'
+ 'Residents/Local' 'Iran' 'Cambodia' 'Myanmar' 'Ethiopia' 'Fiji'
+ 'Micronesia' 'Faeroe Islands' 'Afghanistan'
+ 'Residual British Overseas Territories' 'St Vincent and the Grenadines'
+ 'Venezuela' 'Vietnam' 'Yemen' 'South Africa' 'Zambia' 'Zimbabwe'
+ 'Chinese Taipei' 'Tanzania' 'Ukraine' 'Uganda' 'United States' 'Uruguay'
+ 'Uzbekistan' 'Slovakia' 'El Salvador' 'Thailand' 'Tunisia' 'Türkiye'
+ 'Tuvalu' 'Togo' 'Tajikistan' 'Vanuatu' 'Samoa' 'Suriname' 'Sint Maarten'
+ 'Turks and Caicos Islands' 'Rwanda' 'Solomon Islands'
+ 'St Helena, Ascension and Tristan da Cunha' 'Sierra Leone' 'Mongolia'
+ 'Malawi' 'Nicaragua' 'Honduras' 'Hungary' 'Indonesia' 'Ireland' 'Israel'
+ 'Isle of Man' 'Gibraltar' 'Equatorial Guinea' 'Greece' 'Guatemala'
+ 'France' 'United Kingdom' 'Georgia' 'Guernsey' 'Ghana'
+ 'Dominican Republic' 'Algeria' 'Ecuador' 'Estonia' 'Egypt' 'Spain'
+ 'Finland' 'Curaçao' 'Cyprus' 'Czechia' 'Germany' 'Djibouti' 'Denmark'
+ 'Switzerland' ""Côte d'Ivoire"" 'Chile' 'Cameroon' 'China' 'Colombia'
+ 'Costa Rica' 'The Bahamas' 'Botswana' 'Belarus' 'Belize' 'Canada'
+ 'Bulgaria' 'Bahrain' 'Benin' 'Bermuda' 'Brunei' 'Brazil' 'Romania'
+ 'Serbia' 'Russia' 'Saudi Arabia' 'Seychelles' 'Sweden' 'Singapore'
+ 'Papua New Guinea' 'Philippines' 'Pakistan' 'Poland' 'Portugal'
+ 'Paraguay' 'Qatar' 'Netherlands' 'Norway' 'Nepal' 'New Zealand' 'Oman'
+ 'Panama' 'Peru' 'Mauritius' 'Maldives' 'Mexico' 'Malaysia' 'Mozambique'
+ 'Nigeria' 'Madagascar' 'Marshall Islands' 'Macao SAR' 'Malta'
+ 'Liechtenstein' 'Sri Lanka' 'Liberia' 'Lithuania' 'Luxembourg' 'Morocco'
+ 'Kenya' 'Korea' 'Kuwait' 'Cayman Islands' 'Kazakhstan' 'Laos' 'Lebanon'
+ 'India' 'Iraq' 'Iceland' 'Italy' 'Jersey' 'Jamaica' 'Jordan' 'Japan'
+ 'Anguilla' 'San Marino' 'Somalia' 'Syria' 'Eswatini' 'Turkmenistan'
+ 'Vatican City State' 'Euro area' 'Unallocated location' 'Andorra'
+ 'United Arab Emirates' 'Austria' 'Belgium' 'Hong Kong SAR'
+ 'North Macedonia' 'The Gambia' 'Guinea' 'Guyana' 'Croatia' 'Slovenia'
+ 'Haiti' 'Senegal' 'Chad' 'East Timor' 'Trinidad and Tobago'
+ 'Wallis and Futuna Islands' 'Central African Republic'
+ 'Republic of Congo' 'Serbia and Montenegro' 'Cuba' 'Dominica' 'Burundi'
+ 'Falkland Islands' 'Bhutan' 'Gabon' 'Eritrea' 'Guinea-Bissau' 'Albania'
+ 'Kyrgyz Republic' 'Armenia' 'Netherlands Antilles' 'Kiribati' 'Angola'
+ 'Argentina' 'North Korea' 'Lesotho' 'Australia' 'Azerbaijan' 'Mauritania'
+ 'Bosnia and Herzegovina' 'Barbados' 'Bangladesh' 'Niger' 'Burkina Faso'
+ 'Nauru' 'Palestinian Territory' 'Palau' 'Sudan' 'Bolivia'
+ 'São Tomé and Príncipe' 'Democratic Republic of the Congo' 'Tonga'
+ 'Aruba' 'Greenland' 'Cabo Verde' 'Grenada'
+ 'U.S. Miscellaneous Pacific Islands' 'St Lucia' 'Latvia' 'Libya'
+ 'Moldova' 'Montenegro' 'Mali' 'Namibia' 'New Caledonia'
+ 'French Polynesia' 'British Virgin Islands' 'Yugoslavia' 'South Sudan'
+ 'USSR (Soviet Union)' 'Czechoslovakia' 'German Democratic Republic'
+ 'St Kitts and Nevis' 'Comoros' 'Antigua and Barbuda'
+ 'Bonaire, Sint Eustatius and Saba' 'Montserrat'
+ 'Residual offshore centres' 'Residual former Yugoslavia'
+ 'Residual former Soviet Union' 'Residual former Czechoslovakia'
+ 'Developed countries' 'Emerging market and developing economies'
+ 'Developing Latin America and Caribbean'
+ 'Developing Africa and Middle East' 'Developing Asia and Pacific'
+ 'European developed countries'
+ 'Residual developing Latin America and Caribbean'
+ 'Residual developing Asia and Pacific' 'Residual developed countries'
+ 'Residual developing Africa and Middle East' 'Developing Europe'
+ 'Residual developing Europe' 'Residual former Serbia and Montenegro']"
+TIME_FORMAT,0 instances
+Time Format,0 instances
+COLLECTION,['E' 'V']
+Collection Indicator,['End of period' 'Other']
+ORG_VISIBILITY,['E']
+Organisation visibility,['Public']
+Series,219427 unique values (too many to display)
+1983-Q4,10146 instances
+1984-Q2,10060 instances
+1984-Q4,10296 instances
+1985-Q2,11520 instances
+1985-Q4,15641 instances
+1986-Q2,13081 instances
+1986-Q4,13332 instances
+1987-Q2,13329 instances
+1987-Q4,13403 instances
+1988-Q2,13613 instances
+1988-Q4,13540 instances
+1989-Q2,16060 instances
+1989-Q4,14917 instances
+1990-Q2,16479 instances
+1990-Q4,13545 instances
+1991-Q2,13595 instances
+1991-Q4,15761 instances
+1992-Q2,13584 instances
+1992-Q4,15068 instances
+1993-Q2,16971 instances
+1993-Q4,16867 instances
+1994-Q2,14261 instances
+1994-Q4,16423 instances
+1995-Q2,14375 instances
+1995-Q4,16053 instances
+1996-Q2,14564 instances
+1996-Q4,14702 instances
+1997-Q2,19454 instances
+1997-Q4,20505 instances
+1998-Q2,16751 instances
+1998-Q4,17177 instances
+1999-Q2,22271 instances
+1999-Q4,25942 instances
+2000-Q1,23514 instances
+2000-Q2,25165 instances
+2000-Q3,23254 instances
+2000-Q4,30811 instances
+2001-Q1,27318 instances
+2001-Q2,30481 instances
+2001-Q3,24601 instances
+2001-Q4,28538 instances
+2002-Q1,24856 instances
+2002-Q2,25721 instances
+2002-Q3,25106 instances
+2002-Q4,27660 instances
+2003-Q1,29126 instances
+2003-Q2,26416 instances
+2003-Q3,27463 instances
+2003-Q4,31113 instances
+2004-Q1,29714 instances
+2004-Q2,27831 instances
+2004-Q3,27836 instances
+2004-Q4,32198 instances
+2005-Q1,42429 instances
+2005-Q2,53683 instances
+2005-Q3,46106 instances
+2005-Q4,51318 instances
+2006-Q1,53827 instances
+2006-Q2,46275 instances
+2006-Q3,53354 instances
+2006-Q4,48842 instances
+2007-Q1,55147 instances
+2007-Q2,48005 instances
+2007-Q3,51816 instances
+2007-Q4,56891 instances
+2008-Q1,52369 instances
+2008-Q2,51047 instances
+2008-Q3,52675 instances
+2008-Q4,59491 instances
+2009-Q1,58580 instances
+2009-Q2,52640 instances
+2009-Q3,62576 instances
+2009-Q4,62860 instances
+2010-Q1,55929 instances
+2010-Q2,57984 instances
+2010-Q3,54628 instances
+2010-Q4,61190 instances
+2011-Q1,60399 instances
+2011-Q2,54125 instances
+2011-Q3,53553 instances
+2011-Q4,56213 instances
+2012-Q1,64045 instances
+2012-Q2,54976 instances
+2012-Q3,55676 instances
+2012-Q4,56125 instances
+2013-Q1,58980 instances
+2013-Q2,55191 instances
+2013-Q3,59436 instances
+2013-Q4,89565 instances
+2014-Q1,79508 instances
+2014-Q2,76673 instances
+2014-Q3,78094 instances
+2014-Q4,84234 instances
+2015-Q1,75945 instances
+2015-Q2,76523 instances
+2015-Q3,75959 instances
+2015-Q4,79819 instances
+2016-Q1,78623 instances
+2016-Q2,76004 instances
+2016-Q3,73741 instances
+2016-Q4,86627 instances
+2017-Q1,94593 instances
+2017-Q2,90106 instances
+2017-Q3,75509 instances
+2017-Q4,86923 instances
+2018-Q1,81086 instances
+2018-Q2,81039 instances
+2018-Q3,77448 instances
+2018-Q4,82111 instances
+2019-Q1,76846 instances
+2019-Q2,75589 instances
+2019-Q3,74650 instances
+2019-Q4,81895 instances
+2020-Q1,79756 instances
+2020-Q2,77058 instances
+2020-Q3,75113 instances
+2020-Q4,76459 instances
+2021-Q1,79324 instances
+2021-Q2,76234 instances
+2021-Q3,75078 instances
+2021-Q4,76840 instances
+2022-Q1,74023 instances
+2022-Q2,75669 instances
+2022-Q3,74382 instances
+2022-Q4,74165 instances
+2023-Q1,76606 instances
+2023-Q2,71367 instances
+2023-Q3,74193 instances
+2023-Q4,72338 instances
+2024-Q1,71331 instances
+2024-Q2,75946 instances
+2024-Q3,74131 instances
