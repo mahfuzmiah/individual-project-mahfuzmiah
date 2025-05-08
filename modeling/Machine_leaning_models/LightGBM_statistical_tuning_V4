@@ -1,0 +1,166 @@
+import os
+import numpy as np
+import pandas as pd
+import lightgbm as lgb
+from sklearn.metrics import (
+    mean_squared_error,
+    mean_absolute_percentage_error,
+    mean_absolute_error,
+    median_absolute_error
+)
+from sklearn.model_selection import TimeSeriesSplit, RandomizedSearchCV
+from scipy.stats import skew, kurtosis
+from pathlib import Path
+import time
+
+# ───── CONFIG ────────────────────────────────────────────────────────────────
+TRAIN_FILE = "imputed_results/train/knn.csv"
+TEST_FILE = "imputed_results/test/knn.csv"
+ID_COLS = ['L_REP_CTY', 'L_CP_COUNTRY', 'CBS_BASIS']
+LAGS = [1, 2, 3, 4, 8]
+ROLL_WIN = 8
+
+# tuning split entirely within 2005–2019:
+TRAIN_END = pd.Period("2018Q4", freq='Q')
+VAL_END = pd.Period("2019Q4", freq='Q')
+TEST_START = pd.Period("2020Q1", freq='Q')
+TEST_END = pd.Period("2024Q3", freq='Q')
+NFOLDS = 5
+# ───────────────────────────────────────────────────────────────────────────────
+
+
+def melt_panel(df: pd.DataFrame) -> pd.DataFrame:
+    quarter_cols = [c for c in df.columns if c.endswith(
+        tuple(f"-Q{i}" for i in range(1, 5)))]
+    long = (
+        df.set_index(ID_COLS)[quarter_cols]
+          .stack()
+          .reset_index()
+          .rename(columns={'level_3': 'quarter', 0: 'exposure'})
+    )
+    long['period'] = pd.PeriodIndex(
+        long['quarter'].str.replace('-Q', 'Q'), freq='Q')
+    return long
+
+
+def prepare_long(fp: str) -> pd.DataFrame:
+    df = pd.read_csv(fp)
+    long = melt_panel(df)
+    # winsorize at 99th percentile to curb outliers
+    cap = long['exposure'].quantile(0.99)
+    long['exposure'] = long['exposure'].clip(upper=cap)
+    # clip infinities → NaN → drop
+    long['exposure'] = long['exposure'].replace(
+        [np.inf, -np.inf], np.nan).clip(lower=0)
+    long.dropna(subset=['exposure'], inplace=True)
+    long['y'] = np.log1p(long['exposure'])
+    return long
+
+
+def add_static_stats(train_long: pd.DataFrame, test_long: pd.DataFrame):
+    stats = (
+        train_long
+        .groupby(ID_COLS)['exposure']
+        .agg(exp_mean='mean', exp_std='std', exp_min='min', exp_max='max')
+        .reset_index()
+    )
+    train_long = train_long.merge(stats, on=ID_COLS, how='left')
+    test_long = test_long.merge(stats, on=ID_COLS, how='left')
+    return train_long, test_long
+
+
+def add_features(long: pd.DataFrame):
+    long.sort_values(ID_COLS+['period'], inplace=True)
+    grp = long.groupby(ID_COLS)['exposure']
+    # lags & rolling stats
+    for lag in LAGS:
+        long[f'lag_{lag}'] = grp.shift(lag)
+    long['roll_mean_8'] = grp.shift(1).transform(
+        lambda x: x.rolling(ROLL_WIN, min_periods=1).mean())
+    long['roll_std_8'] = grp.shift(1).transform(
+        lambda x: x.rolling(ROLL_WIN, min_periods=1).std())
+    # skew/kurtosis
+    long['roll_skew_8'] = grp.shift(1).transform(
+        lambda x: x.rolling(ROLL_WIN, min_periods=ROLL_WIN//2).skew())
+    long['roll_kurt_8'] = grp.shift(1).transform(
+        lambda x: x.rolling(ROLL_WIN, min_periods=ROLL_WIN//2).kurt())
+    # gap & proportional gap
+    long['pct_gap_1'] = grp.pct_change(1)
+    long['prop_gap_1'] = (long['exposure'] - long['lag_1']) / long['lag_1']
+    # time-since-last-nonzero
+    long['zero_flag'] = (long['exposure'] == 0).astype(int)
+    long['time_since_nonzero'] = grp.transform(lambda x: x.ne(0).cumsum())
+    # group-level seasonality
+    long['ctrpty_quarter_season'] = long.groupby(
+        ['L_CP_COUNTRY', long['period'].dt.quarter])['exposure'].transform('mean')
+    long['ctrpty_quarter_anom'] = long['exposure'] - \
+        long['ctrpty_quarter_season']
+    # cyclical quarter
+    long['qnum'] = long['period'].dt.quarter
+    long['q_sin'] = np.sin(2*np.pi*(long.qnum-1)/4)
+    long['q_cos'] = np.cos(2*np.pi*(long.qnum-1)/4)
+
+
+def main():
+    # 1) load & prep
+    train_long = prepare_long(TRAIN_FILE)
+    test_long = prepare_long(TEST_FILE)
+    train_long, test_long = add_static_stats(train_long, test_long)
+    # 2) fe
+    for df in (train_long, test_long):
+        add_features(df)
+    # 3) build features
+    feat_cols = [c for c in train_long.columns if c.startswith(
+        ('lag_', 'roll_', 'pct_', 'prop_gap', 'time_since_nonzero', 'ctrpty_', 'q_sin', 'q_cos'))
+    ] + ['exp_mean', 'exp_std', 'exp_min', 'exp_max']
+    for df in (train_long, test_long):
+        df.replace([np.inf, -np.inf], np.nan, inplace=True)
+        df.dropna(subset=feat_cols+['y'], inplace=True)
+    # 4) Randomized search on train+val
+    tv = train_long[train_long['period'] <= VAL_END]
+    X_tv, y_tv = tv[feat_cols], tv['y']
+    tscv = TimeSeriesSplit(n_splits=NFOLDS)
+    param_dist = {
+        'learning_rate': [0.01, 0.03, 0.05, 0.1],
+        'num_leaves':    [31, 63, 127],
+        'colsample_bytree': [0.6, 0.8, 1.0],
+        'subsample':        [0.6, 0.8, 1.0],
+        'subsample_freq':   [5],
+        'reg_alpha':        [0, 1],
+        'reg_lambda':       [0, 1]
+    }
+    base = lgb.LGBMRegressor(objective='regression',
+                             metric='rmse', n_estimators=500, random_state=42)
+    rand = RandomizedSearchCV(
+        base, param_distributions=param_dist,
+        n_iter=50, cv=tscv, scoring='neg_root_mean_squared_error',
+        n_jobs=-1, verbose=1, random_state=42
+    )
+    start = time.time()
+    rand.fit(X_tv, y_tv)
+    print(f"Randomized search done in {time.time()-start:.1f}s")
+    print("Best params:", rand.best_params_)
+    # 5) re-fit on full train_end
+    best = rand.best_estimator_
+    tr = train_long[train_long['period'] <= TRAIN_END]
+    X_tr, y_tr = tr[feat_cols], tr['y']
+    best.fit(X_tr, y_tr)
+    # 6) evaluate test window
+    tw = test_long[(test_long['period'] >= TEST_START)
+                   & (test_long['period'] <= TEST_END)]
+    X_te, y_te = tw[feat_cols], tw['y']
+    y_pred = np.expm1(best.predict(X_te))
+    y_true = np.expm1(y_te)
+    mask = y_true > 0
+    print(
+        f"RMSE (nz only): {np.sqrt(mean_squared_error(y_true[mask],y_pred[mask])):,.1f}")
+    print(
+        f"SMAPE: {100*np.mean(2*np.abs(y_pred-y_true)/(np.abs(y_true)+np.abs(y_pred)+1e-6)):.2f}%")
+
+    # save
+    Path("models").mkdir(exist_ok=True)
+    best.booster_.save_model("models/lightgbm_model.txt")
+
+
+if __name__ == '__main__':
+    main()
