@@ -48,7 +48,6 @@ data.columns = data.columns.str.strip()
 time_columns = [col for col in data.columns if any(
     str(year) in col for year in range(2005, 2025))]
 
-
 # Filter out rows where 'Reporting country' or 'Counterparty country' contains unwanted entries
 filtered_data_country = data[
     ~data['Reporting country'].fillna('').str.lower().str.strip().isin(unwanted_entries) &
