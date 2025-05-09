@@ -1,4 +1,0 @@
-DataSets/CleanedCBSDataSet.csv filter=lfs diff=lfs merge=lfs -text
-DataSets/WS_CBS_PUB_csv_col.csv filter=lfs diff=lfs merge=lfs -text
-DataSetsCBS/WS_CBS_PUB_csv_col.csv filter=lfs diff=lfs merge=lfs -text
-DataSets/WS_LBS_D_PUB_csv_col-3.csv filter=lfs diff=lfs merge=lfs -text
