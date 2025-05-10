@@ -1,3 +1,23 @@
+# no Python venv
+.venv/
+
+# no intermediate or output data
+long_data.csv
+long_data_test.csv
+metrics_*.csv
+imputed_results/
+
+# no huge diagrams or plots
+Diagrams/
+graphs/
+
+# no trained models
+models/
+models/*.txt
+
+# no raw dumps
+DataSetsCBS/
+
 # macOS
 .DS_Store
 
