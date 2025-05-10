@@ -12,6 +12,8 @@ import os
 warnings.filterwarnings("ignore")
 
 # --- Configuration ---
+HERE = os.path.dirname(__file__)             # .../modeling/Statistical_models
+REPO_ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))  # .../Final_repo
 TRAIN_PATH = '/Users/mahfuz/Final_project/Final_repo/long_data.csv'
 TEST_PATH = '/Users/mahfuz/Final_project/Final_repo/long_data_test.csv'
 

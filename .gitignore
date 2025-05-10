@@ -1,8 +1,19 @@
+# macOS
 .DS_Store
+
+# virtual environments
 .venv/
-.venv/
-.venv/
-.venv/
-DataSetsCBS/WS_CBS_PUB_csv_col.csv
-.venv/
-DataSetsCBS/WS_CBS_PUB_csv_col.csv
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Raw data dumps
+DataSetsCBS/*.csv
+
+# Optional: compiled extensions
+*.so
