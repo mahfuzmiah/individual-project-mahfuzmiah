@@ -1,8 +1,10 @@
 import os
 import time
+from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
-
+import random
+import sys
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -13,10 +15,26 @@ from tensorflow.keras.layers import LSTM, Dense
 from sklearn.preprocessing import StandardScaler
 warnings.filterwarnings("ignore")
 
-# --- Configuration ---
-TRAIN_PATH = '/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/imputed_linear.csv'
-TEST_PATH = '/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/TestingData.csv'
+os.environ['PYTHONHASHSEED'] = '42'
+# 2) Force TensorFlow to deterministic ops
+os.environ['TF_DETERMINISTIC_OPS'] = '1'
+import tensorflow as tf  # nopep8
 
+# 3) Seed everything
+SEED = 42
+random.seed(SEED)
+np.random.seed(SEED)
+tf.random.set_seed(SEED)
+# Import your config
+REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT))
+from config import DATASETS_DIR, DIAGRAMS_DIR, IMPUTED_RESULTS_DIR_TEST, IMPUTED_RESULTS_DIR_TRAIN  # nopep8
+
+TRAIN_PATH = IMPUTED_RESULTS_DIR_TRAIN / "knn.csv"
+TEST_PATH = IMPUTED_RESULTS_DIR_TEST / "knn.csv"
+OUT_DIR = DIAGRAMS_DIR / "LSTM_Results_diagrams"
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+# --- Utility Functions ---
 # Parameters:
 n_steps = 4       # number of time steps per input window
 block_size = 4    # number of rows to group together as features
@@ -82,6 +100,8 @@ def plot_actual_vs_forecast(row_id, actual, forecast):
     plt.ylabel('Value')
     plt.legend()
     plt.grid(True)
+    plt.savefig(
+        OUT_DIR / f"Row_{row_id}_Actual_vs_Forecast_Combined_Parrallel.png", dpi=300)
     plt.show()
 
 
@@ -219,8 +239,8 @@ if __name__ == '__main__':
     # Fill any remaining NaN values with 0
     test = df_filled.fillna(0)
   # Only take first 200 rows for test and train
-    train_sample = train.iloc[:200]
-    test_sample = test.iloc[:200]
+    train_sample = train.iloc[:5]
+    test_sample = test.iloc[:5]
 
     train_blocks = create_blocks(train_sample, block_size)
     test_blocks = create_blocks(test_sample, block_size)
@@ -301,6 +321,7 @@ if __name__ == '__main__':
     plt.ylabel("WMAPE")
     plt.title(f"WMAPE Over Time (LSTM Forecasts) Across Rows")
     plt.grid(True)
-    # plt.savefig(
-    #     '/Users/mahfuz/Final_project/Final_repo/Diagrams/LSTM_parallel_WMAPE_over_time.png')
+    plt.savefig(
+        OUT_DIR / "LSTM_Combined_Parrallel_WMAPE_over_time.png", dpi=300)
+
     plt.show()

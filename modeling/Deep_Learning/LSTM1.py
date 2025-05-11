@@ -1,20 +1,42 @@
 
-
+import pandas as pd  # ensure pandas is in scope
+import os
+import random
+import sys
+from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor
 import pandas as pd
 import numpy as np
 import time
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense
-import os
 import warnings
 import matplotlib.pyplot as plt
 warnings.filterwarnings("ignore")
 
-# --- Configuration ---
-TRAIN_PATH = '/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/imputed_linear.csv'
-TEST_PATH = '/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/TestingData.csv'
 
+os.environ['PYTHONHASHSEED'] = '42'
+# 2) Force TensorFlow to deterministic ops
+os.environ['TF_DETERMINISTIC_OPS'] = '1'
+import tensorflow as tf  # nopep8
+
+# 3) Seed everything
+SEED = 42
+random.seed(SEED)
+np.random.seed(SEED)
+tf.random.set_seed(SEED)
+# 1) Make Python’s hash seed fixed
+
+
+# 4) Import your config
+REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT))
+from config import DATASETS_DIR, DIAGRAMS_DIR, IMPUTED_RESULTS_DIR_TEST, IMPUTED_RESULTS_DIR_TRAIN  # nopep8
+
+TRAIN_PATH = IMPUTED_RESULTS_DIR_TRAIN / "knn.csv"
+TEST_PATH = IMPUTED_RESULTS_DIR_TEST / "knn.csv"
+OUT_DIR = DIAGRAMS_DIR / "LSTM_Results_diagrams"
+OUT_DIR.mkdir(parents=True, exist_ok=True)
 # --- Utility Functions ---
 
 
@@ -53,137 +75,159 @@ def seconds_to_hms(seconds):
     secs = seconds % 60
     return hours, minutes, secs
 
-# -------------- Data Preparation and Model Training --------------
 
+def main():
 
-# Load data
-train, test = load_data()
+    # Load data
+    train, test = load_data()
 
-# Assume the first 3 columns are metadata; time-series data starts from the 4th column
-train_time_series_cols = train.columns[3:]
-test_time_series_cols = test.columns[3:]
+    # Time-series columns
+    train_cols = train.columns[3:]
+    test_cols = test.columns[3:]
 
-n_steps = 4         # number of time steps per input
-n_features = 1      # univariate data
-results = []
-NO_ITERATIONS = 200
-# Start timer before processing the rows
-start_time = time.time()
-# for i in range(len(train)):
-for i in range(NO_ITERATIONS):
-    # ---- Training on row i from training set ----
-    train_series = train[train_time_series_cols].iloc[i].values
-    # Check if the training series is constant
-    if np.std(train_series) < 1e-6:
-        # If constant, no model training needed: forecast the constant value
-        constant_val = train_series[0]
-        X_train, y_train = split_sequence(train_series.tolist(), n_steps)
-        X_train = X_train.reshape(
-            (X_train.shape[0], X_train.shape[1], n_features))
-        # Print a warning message
-        print(
-            f"Row {i} training data is constant. Using constant value {constant_val} for predictions.")
-        model_trained = None
-    else:
-        X_train, y_train = split_sequence(train_series.tolist(), n_steps)
-        X_train = X_train.reshape(
-            (X_train.shape[0], X_train.shape[1], n_features))
-        # Define and compile the LSTM model
-        model = Sequential()
-        model.add(LSTM(50, activation='relu', input_shape=(n_steps, n_features)))
-        model.add(Dense(1))
-        model.compile(optimizer='adam', loss='mse')
-        # Fit the model on this row's training data
-        model.fit(X_train, y_train, epochs=200, verbose=0)
-        model_trained = model
+    n_steps = 4
+    n_features = 1
+    results = []
+    NO_ITERATIONS = 2
 
-    # ---- Iterative Prediction for the full test horizon for row i ----
-    test_series = test[test_time_series_cols].iloc[i].values
-    horizon = len(test_series)  # total number of time steps in test row
-    n_predictions = horizon - n_steps  # number of predictions to generate
-
-    # Use the first n_steps values from the test row as the initial window:
-    current_input = test_series[:n_steps].copy()
-    predictions = []
-    for j in range(n_predictions):
-        if model_trained is None:
-            # If the training data was constant, simply use the constant value
-            pred = constant_val
+    start_time = time.time()
+    for i in range(NO_ITERATIONS):
+        # --- 1) Fit on row i of train ---
+        train_series = train[train_cols].iloc[i].values
+        if np.std(train_series) < 1e-6:
+            constant_val = train_series[0]
+            model_trained = None
+            print(f"Row {i} constant; using {constant_val}")
         else:
-            x_input = current_input.reshape((1, n_steps, n_features))
-            yhat = model_trained.predict(x_input, verbose=0)
-            pred = yhat[0][0]
-        predictions.append(pred)
-        # Update the window: drop the first value and append the new prediction
-        current_input = np.concatenate([current_input[1:], [pred]])
+            X_train, y_train = split_sequence(train_series.tolist(), n_steps)
+            X_train = X_train.reshape((len(X_train), n_steps, n_features))
+            model = Sequential([
+                LSTM(50, activation='relu', input_shape=(n_steps, n_features)),
+                Dense(1)
+            ])
+            model.compile(optimizer='adam', loss='mse')
+            model.fit(X_train, y_train, epochs=200, verbose=0)
+            model_trained = model
 
-    # Store the results for this row:
-    actual = test_series[n_steps:]
-    results.append({'row': i, 'forecast': np.array(
-        predictions), 'actual': np.array(actual)})
+        # --- 2) Warm-up window from end of training series ---
+        current_input = train_series[-n_steps:].copy()
+
+        # --- 3) Forecast full test horizon ---
+        test_series = test[test_cols].iloc[i].values
+        horizon = len(test_series)
+        preds = []
+
+        for _ in range(horizon):
+            if model_trained is None:
+                pred = constant_val
+            else:
+                x_in = current_input.reshape((1, n_steps, n_features))
+                pred = model_trained.predict(x_in, verbose=0)[0][0]
+            preds.append(pred)
+            current_input = np.concatenate([current_input[1:], [pred]])
+
+        results.append({
+            'row':     i,
+            'forecast': np.array(preds),
+            'actual':   test_series
+        })
+
+    # End timer after processing all rows
+    end_time = time.time()
+    total_time = end_time - start_time
+    average_time = total_time / NO_ITERATIONS
+    total_predicted_time = average_time * len(train)
+    hours, minutes, secs = seconds_to_hms(total_time)
+    hours_avg, minutes_avg, secs_avg = seconds_to_hms(average_time)
+    hours_predicted, minutes_predicted, secs_predicted = seconds_to_hms(
+        total_predicted_time)
+
+    print("Total time taken to process dataset: {} hours, {} minutes, {:.2f} seconds".format(
+        hours, minutes, secs))
+    print("Average time taken per row: {} hours, {} minutes, {:.2f} seconds".format(
+        hours_avg, minutes_avg, secs_avg))
+    print("Total time to predict entire test set: {} hours, {} minutes, {:.2f} seconds".format(
+        hours_predicted, minutes_predicted, secs_predicted))
+
+    first = results[0]
+    # build PeriodIndex + timestamps
+    periods = pd.PeriodIndex(test_cols, freq='Q')
+    # use 'start' so grid & points line up
+    dates = periods.to_timestamp(how='start')
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.plot(dates, first['actual'],   label='Actual',   marker='o')
+    ax.plot(dates, first['forecast'], label='Forecast', marker='x')
+
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Value")
+    ax.set_title("LSTM Forecast vs Actual for Row 0")
+
+    # major ticks every 4 quarters
+    major_dates = dates[::4]
+    major_periods = periods[::4]
+    ax.set_xticks(major_dates)
+    ax.set_xticklabels(
+        [f"{p.year}-Q{p.quarter}" for p in major_periods],
+        rotation=45, ha='center'
+    )
+
+    # minor ticks at every quarter (for gridlines)
+    ax.set_xticks(dates, minor=True)
+
+    # grid
+    ax.grid(which='major', linewidth=1, alpha=0.8)
+    ax.grid(which='minor', linestyle='--', alpha=0.3)
+
+    fig.tight_layout()
+    fig.savefig(OUT_DIR/"LSTM1_forecast_row_0_times.png", dpi=300)
+    plt.show()
+
+    # 1) compute wmape_by_time
+    H = len(results[0]['forecast'])
+    wmape_by_time = [
+        wmape(
+            np.array([r['actual'][j] for r in results]),
+            np.array([r['forecast'][j] for r in results])
+        )
+        for j in range(H)
+    ]
+
+    # 2) build PeriodIndex + corresponding timestamps
+    # e.g. Period('2020Q1')
+    periods = pd.PeriodIndex(test_cols, freq='Q')
+    # e.g. Timestamp('2020-03-31')
+    dates = periods.to_timestamp()
+
+    # 3) plot everything
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.plot(dates, wmape_by_time, marker='o')
+    ax.set_xlabel("Date")
+    ax.set_ylabel("WMAPE")
+    ax.set_title(
+        f"WMAPE Over Time (LSTM Forecasts) Across {NO_ITERATIONS} Rows")
+
+    # 4) ticks & labels
+    # every 4th quarter
+    major_dates = dates[::4]
+    major_periods = periods[::4]
+    ax.set_xticks(major_dates)
+    ax.set_xticklabels(
+        [f"{p.year}-Q{p.quarter}" for p in major_periods],
+        ha='center'
+    )
+
+    # minor ticks at every single quarter for grid lines
+    ax.set_xticks(dates, minor=True)
+
+    # 5) grid on both major and minor
+    ax.grid(which='major', linewidth=1, alpha=0.8)
+    ax.grid(which='minor', linestyle='--', alpha=0.3)
+
+    fig.tight_layout()
+    fig.savefig(OUT_DIR / "LSTM1_WMAPE_over_time.png", dpi=300)
+    plt.show()
 
 
-# End timer after processing all rows
-end_time = time.time()
-total_time = end_time - start_time
-average_time = total_time / NO_ITERATIONS
-total_predicted_time = average_time * len(train)
-hours, minutes, secs = seconds_to_hms(total_time)
-hours_avg, minutes_avg, secs_avg = seconds_to_hms(average_time)
-hours_predicted, minutes_predicted, secs_predicted = seconds_to_hms(
-    total_predicted_time)
-
-print("Total time taken to process dataset: {} hours, {} minutes, {:.2f} seconds".format(
-    hours, minutes, secs))
-print("Average time taken per row: {} hours, {} minutes, {:.2f} seconds".format(
-    hours_avg, minutes_avg, secs_avg))
-print("Total time to predict entire test set: {} hours, {} minutes, {:.2f} seconds".format(
-    hours_predicted, minutes_predicted, secs_predicted))
-
-
-# ---------------- Graphing ----------------
-
-# Graph 1: Forecast vs Actual for the first row (row 0)
-first_result = results[0]
-time_index = list(range(n_steps, n_steps + len(first_result['forecast'])))
-plt.figure(figsize=(10, 5))
-plt.plot(time_index, first_result['actual'], label='Actual', marker='o')
-plt.plot(time_index, first_result['forecast'],
-         label='Forecast (LSTM)', marker='x')
-plt.xlabel("Time Step")
-plt.ylabel("Value")
-plt.title("LSTM Forecast vs Actual for Row 0")
-plt.legend()
-plt.savefig(
-    '/Users/mahfuz/Final_project/Final_repo/Diagrams/LSTM1_forecast_selected_series.png')
-plt.show()
-
-# Graph 2: WMAPE over time across the 200 rows
-# Assuming all rows have the same forecast horizon
-H = len(results[0]['forecast'])
-wmape_by_time = []
-for j in range(H):
-    all_actual = np.array([res['actual'][j] for res in results])
-    all_forecast = np.array([res['forecast'][j] for res in results])
-    denom = abs(all_actual).sum()
-    wmape_val = wmape(all_actual, all_forecast)
-    wmape_by_time.append(wmape_val)
-
-
-xvals = []
-yvals = []
-for idx, val in enumerate(wmape_by_time):
-    if not np.isnan(val):
-        xvals.append(idx)
-        yvals.append(val)
-plt.figure(figsize=(10, 5))
-# plt.plot(list(range(n_steps, n_steps+H)), wmape_by_time, marker='o')
-plt.plot(xvals, yvals, marker='o')
-
-plt.xlabel("Forecast Time Step")
-plt.ylabel("WMAPE")
-plt.title(f"WMAPE Over Time (LSTM Forecasts) Across {NO_ITERATIONS} Rows")
-plt.grid(True)
-plt.savefig(
-    '/Users/mahfuz/Final_project/Final_repo/Diagrams/LSTM1_WMAPE_over_time.png')
-plt.show()
+if __name__ == "__main__":
+    main()

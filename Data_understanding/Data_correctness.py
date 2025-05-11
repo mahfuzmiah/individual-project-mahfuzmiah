@@ -1,11 +1,20 @@
+import sys
+from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import seaborn as sns
-#  input_file = "/Users/mahfuz/Final_project/Final_repo/imputed_poly.csv"
-# input_file = "/Users/mahfuz/Final_project/Final_repo/DataSets/WS_CBS_PUB_csv_col.csv"
-input_file = "/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/CleanedCBSDataSet.csv"
-df = pd.read_csv(input_file)
+REPO_ROOT_PATH = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT_PATH))
+from config import REPO_ROOT, DATASETS_DIR, DIAGRAMS_DIR   # nopep8
+
+
+INPUT_FILE = DATASETS_DIR / "CleanedCBSDataSet.csv"  # Original dataset
+input_stem = INPUT_FILE.stem
+DIAGRAMS_DIR.mkdir(parents=True, exist_ok=True)
+DIAGRAMS_DIR = DIAGRAMS_DIR / "Data_correctness"
+DIAGRAMS_DIR.mkdir(parents=True, exist_ok=True)
+df = pd.read_csv(INPUT_FILE)
 time_cols = [c for c in df.columns if "-Q" in c]
 df[time_cols] = df[time_cols].replace(0, np.nan)
 missing = df[time_cols].isnull().mean() * 100
@@ -60,9 +69,9 @@ plt.title("CBS Panel:% of Quarter-Level Observations Missing Over Time")
 plt.xlabel("Quarter")
 plt.ylabel("Missing (%)")
 plt.tight_layout()
-plt.savefig(
-    "/Users/mahfuz/Final_project/Final_repo/Diagrams/MissingPercentage.png", dpi=300)
-
+diagram_type = "MissingPercentage"
+outfile = DIAGRAMS_DIR / f"{diagram_type}_{input_stem}.png"
+plt.savefig(outfile, dpi=300)
 plt.show()
 
 # If you want to treat zeros in time columns as missing, first identify time columns:
@@ -120,9 +129,9 @@ for yr, lbl in [(1999, "1998 Q4"), (2005, "2005 Q4"), (2013, "2013 Q2")]:
     )
 
 plt.tight_layout()
-plt.savefig(
-    "/Users/mahfuz/Final_project/Final_repo/Diagrams/MissingPercentage_by_Reporting_basis.png", dpi=300)
-
+diagram_type = "MissingPercentage_by_Basis"
+outfile = DIAGRAMS_DIR / f"{diagram_type}_{input_stem}.png"
+plt.savefig(outfile, dpi=300)
 plt.show()
 
 # Identify the quarter columns (those containing '-Q' in their names)
@@ -151,6 +160,7 @@ plt.xticks(rotation=45)
 plt.tight_layout()
 
 # 4. Save and show the plot
-plt.savefig(
-    "/Users/mahfuz/Final_project/Final_repo/Diagrams/MissingPercentage_by_ReportingCountry.png", dpi=300)
+diagram_type = "MissingPercentage_by_Country"
+outfile = DIAGRAMS_DIR / f"{diagram_type}_{input_stem}.png"
+plt.savefig(outfile, dpi=300)
 plt.show()

@@ -1,12 +1,26 @@
+
+import sys
+from pathlib import Path
 from datetime import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
+REPO_ROOT_PATH = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT_PATH))
+from config import REPO_ROOT, DATASETS_DIR, IMPUTED_RESULTS_DIR_TEST, IMPUTED_RESULTS_DIR_TRAIN  # nopep8
+
+# walk up N levels to repo root
+
+
+# ───── CONFIG ────────────────────────────────────────────────────────────────
+PATH_TRAIN = IMPUTED_RESULTS_DIR_TRAIN / "knn.csv"
+PATH_TEST = IMPUTED_RESULTS_DIR_TEST / "knn.csv"
+LONG_DATA_PATH = DATASETS_DIR / "long_data.csv"
+LONG_DATA_TEST_PATH = DATASETS_DIR / "long_data_test.csv"
 
 
 def main():
     # --- Process Training Data ---
-    path_train = '/Users/mahfuz/Final_project/Final_repo/DatasetsCBS/imputed_linear.csv'
-    data_training = pd.read_csv(path_train)
+    data_training = pd.read_csv(PATH_TRAIN)
     # Reshape from wide to long format
     data_long_train = data_training.melt(
         id_vars=['L_REP_CTY', 'L_CP_COUNTRY', 'CBS_BASIS'],
@@ -35,12 +49,10 @@ def main():
 
     data_long_train = data_long_train[['ds', 'unique_id', 'y']]
     # Save cleaned training data (optional)
-    data_long_train.to_csv(
-        '/Users/mahfuz/Final_project/Final_repo/long_data.csv', index=False)
+    data_long_train.to_csv(LONG_DATA_PATH, index=False)
 
     # --- Process Test Data ---
-    path_test = '/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/TestingData.csv'
-    data_testing = pd.read_csv(path_test)
+    data_testing = pd.read_csv(PATH_TEST)
     data_long_test = data_testing.melt(
         id_vars=['L_REP_CTY', 'L_CP_COUNTRY', 'CBS_BASIS'],
         var_name='ds',
@@ -64,5 +76,8 @@ def main():
     data_long_test['ds'] = data_long_test['ds'] + pd.offsets.QuarterEnd()
     data_long_test = data_long_test[['ds', 'unique_id', 'y']]
     # Save cleaned test data (optional)
-    data_long_test.to_csv(
-        '/Users/mahfuz/Final_project/Final_repo/long_data_test.csv', index=False)
+    data_long_test.to_csv(LONG_DATA_TEST_PATH, index=False)
+
+
+if __name__ == "__main__":
+    main()

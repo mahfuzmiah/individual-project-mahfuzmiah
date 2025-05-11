@@ -1,21 +1,48 @@
 
-
-import os
-import pandas as pd
-import numpy as np
-import time
+import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense
-import matplotlib.pyplot as plt
-import warnings
 from sklearn.preprocessing import StandardScaler
-from tensorflow.python.client import device_lib
-import tensorflow as tf
-warnings.filterwarnings("ignore")
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+import random
+import numpy as np
+
+# 1) Fix Python’s hash seed
+os.environ['PYTHONHASHSEED'] = '42'
+# 2) Force TF deterministic ops
+os.environ['TF_DETERMINISTIC_OPS'] = '1'
+# 3) Disable GPU
+os.environ['CUDA_VISIBLE_DEVICES'] = ''
+
+# 4) Seed Python & NumPy
+SEED = 42
+random.seed(SEED)
+np.random.seed(SEED)
+
+
+tf.config.threading.set_intra_op_parallelism_threads(1)
+tf.config.threading.set_inter_op_parallelism_threads(1)
+tf.random.set_seed(42)
+
+
+# 5) Now import TensorFlow and pin threads & seed it
+tf.config.threading.set_intra_op_parallelism_threads(1)
+tf.config.threading.set_inter_op_parallelism_threads(1)
+tf.random.set_seed(SEED)
+
+# 6) Only now import Keras, sklearn, etc.
+REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT))
+from config import DATASETS_DIR, DIAGRAMS_DIR, IMPUTED_RESULTS_DIR_TEST, IMPUTED_RESULTS_DIR_TRAIN  # nopep8
+
 # --- Configuration ---
-# TRAIN_PATH = '/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/imputed_linear.csv'
-TRAIN_PATH = '/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/TrainingData.csv'
-TEST_PATH = '/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/TestingData.csv'
+TRAIN_PATH = IMPUTED_RESULTS_DIR_TRAIN / "knn.csv"
+TEST_PATH = IMPUTED_RESULTS_DIR_TEST / "knn.csv"
+OUT_DIR = DIAGRAMS_DIR / "LSTM_Results_diagrams"
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+# --- Utility Functions ---
 
 
 # --- Utility Functions ---
@@ -56,7 +83,7 @@ def seconds_to_hms(seconds):
 
 
 # --- TensorFlow GPU Configuration ---
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # disables all GPU devices
+os.environ["CUDA_VISIBLE_DEVICES"] = ""  # disables all GPU devices
 tf.config.set_visible_devices([], 'GPU')
 # Uncomment the line above to enable GPU usage
 print("Is GPU available?", tf.config.list_physical_devices('GPU'))
@@ -189,6 +216,8 @@ plt.ylabel("Value")
 plt.title("Forecast vs Actual for Feature 0")
 plt.xticks(rotation=45)
 plt.tight_layout()
+plt.savefig(
+    OUT_DIR / "Forecast_vs_Actual_Feature_0.png", dpi=300)
 plt.show()
 
 
@@ -224,142 +253,7 @@ plt.xlabel("Forecast Time Step")
 plt.ylabel("WMAPE")
 plt.title(f"WMAPE Over Time (LSTM Forecasts) Across Rows")
 plt.grid(True)
-# plt.savefig(
-#     '/Users/mahfuz/Final_project/Final_repo/Diagrams/LSTM_parallel_WMAPE_over_time.png')
+plt.savefig(
+    OUT_DIR / "LSTM_Parrallel_WMAPE_over_time.png", dpi=300)
+
 plt.show()
-
-
-# import os
-# import pandas as pd
-# import numpy as np
-# import time
-# import matplotlib.pyplot as plt
-# import warnings
-# import tensorflow as tf
-# from tensorflow.keras.models import Sequential
-# from tensorflow.keras.layers import LSTM, Dense, Dropout, BatchNormalization, Bidirectional
-# from tensorflow.keras.optimizers import Adam
-# from tensorflow.python.client import device_lib
-# from sklearn.preprocessing import StandardScaler
-
-# warnings.filterwarnings("ignore")
-
-# # --- Configuration ---
-# TRAIN_PATH = '/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/imputed_linear.csv'
-# TEST_PATH = '/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/TestingData.csv'
-
-# # Toggle for GPU/CPU benchmarking
-# USE_GPU = False  # set to False for CPU-only
-
-# # --- Hardware Setup ---
-# if not USE_GPU:
-#     # force CPU only
-#     tf.config.set_visible_devices([], 'GPU')
-#     os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-# else:
-#     # allow all GPUs
-#     gpus = tf.config.list_physical_devices('GPU')
-#     tf.config.set_visible_devices(gpus, 'GPU')
-
-# print("Is GPU available?", tf.config.list_physical_devices('GPU'))
-# print("Devices:", device_lib.list_local_devices())
-# print("Num GPUs Available:", len(tf.config.list_physical_devices('GPU')))
-# print("Num CPUs Available:", len(tf.config.list_physical_devices('CPU')))
-
-# # --- Utility Functions ---
-# scaler = StandardScaler()
-
-
-# def load_data(train_path=TRAIN_PATH, test_path=TEST_PATH):
-#     train = pd.read_csv(train_path)
-#     test = pd.read_csv(test_path)
-#     return train, test
-
-
-# def split_sequence_vectorized(sequence, n_steps):
-#     X, y = [], []
-#     for i in range(len(sequence) - n_steps):
-#         X.append(sequence[i:i+n_steps])
-#         y.append(sequence[i+n_steps])
-#     return np.array(X), np.array(y)
-
-
-# def seconds_to_hms(sec):
-#     h = int(sec // 3600)
-#     m = int((sec % 3600) // 60)
-#     s = sec % 60
-#     return h, m, s
-
-
-# # --- Data Preparation ---
-# train_df, test_df = load_data()
-
-
-# def preprocess(df):
-#     df = df.copy().infer_objects()
-#     num_cols = df.select_dtypes(include=['number']).columns
-#     df[num_cols] = df[num_cols].interpolate(axis=1, limit_direction='both')
-#     return df.fillna(0)
-
-
-# train_data = train_df.iloc[:, 3:].values.T
-# raw_test = preprocess(test_df)
-# test_data = raw_test.iloc[:, 3:].values.T
-
-# # scale
-# train_scaled = scaler.fit_transform(train_data)
-# test_scaled = scaler.transform(test_data)
-
-# n_steps = 4
-# n_features = train_scaled.shape[1]
-
-# X_train, y_train = split_sequence_vectorized(train_scaled, n_steps)
-# X_test,  y_test = split_sequence_vectorized(test_scaled,  n_steps)
-
-# # --- Model Definition ---
-# model = Sequential([
-#     Bidirectional(LSTM(128, return_sequences=True),
-#                   input_shape=(n_steps, n_features)),
-#     Dropout(0.2), BatchNormalization(),
-#     LSTM(64, return_sequences=True), Dropout(0.2), BatchNormalization(),
-#     LSTM(32), Dropout(0.1),
-#     Dense(64, activation='relu'), Dropout(0.1),
-#     Dense(n_features, activation='linear')
-# ])
-# optimizer = Adam(learning_rate=1e-4)
-# model.compile(optimizer=optimizer, loss='mse', metrics=['mae'])
-
-# # --- Training Benchmark ---
-# train_start = time.time()
-# model.fit(X_train, y_train, epochs=1000, batch_size=128, verbose=1)
-# train_end = time.time()
-# print("Training time:", seconds_to_hms(train_end - train_start))
-
-# # --- Batched Prediction Benchmark ---
-# pred_start = time.time()
-# y_pred = model.predict(X_test, batch_size=256, verbose=0)
-# pred_end = time.time()
-# print("Batched predict time:", seconds_to_hms(pred_end - pred_start))
-
-# # --- WMAPE Calculation ---
-
-
-# def wmape(y_true, y_pred):
-#     return np.abs(y_true-y_pred).sum()/np.abs(y_true).sum()
-
-
-# wmape_val = wmape(y_test, y_pred)
-# print(f"Overall WMAPE on test set: {wmape_val:.4f}")
-
-# # --- Plot Example Feature ---
-# dates = raw_test.columns[3+n_steps:]
-# plt.figure(figsize=(10, 5))
-# plt.plot(dates, y_test[:, 0], label='Actual')
-# plt.plot(dates, y_pred[:, 0], label='Forecast')
-# plt.title('Feature 0: Actual vs Forecast')
-# plt.xlabel('Date')
-# plt.ylabel('Value')
-# plt.legend()
-# plt.xticks(rotation=45)
-# plt.tight_layout()
-# plt.show()
