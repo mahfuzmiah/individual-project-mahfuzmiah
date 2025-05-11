@@ -1,11 +1,16 @@
 import pandas as pd
+import sys
+from pathlib import Path
+REPO_ROOT_PATH = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT_PATH))
+from config import REPO_ROOT, DATASETS_DIR, IMPUTED_RESULTS_DIR_TEST, IMPUTED_RESULTS_DIR_TRAIN  # nopep8
 
-
-original_file = "/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/WS_CBS_PUB_csv_col.csv"
-output_file = "/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/country_counts_comparison.csv"
+# -- CONFIG ────────────────────────────────────────────────────────────────
+ORIGINAL_FILE = DATASETS_DIR / "WS_CBS_PUB_csv_col.csv"   # Original dataset
+OUTPUT_FILE = DATASETS_DIR / "country_counts_comparison.csv"  # Output file
 
 # Load dataset
-original_data = pd.read_csv(original_file)
+original_data = pd.read_csv(ORIGINAL_FILE)
 
 # Ensure required columns exist
 required_columns = ['Reporting country', 'Counterparty country']
@@ -36,5 +41,5 @@ country_counts[['Reporting Count', 'Counterparty Count']] = country_counts[[
     'Reporting Count', 'Counterparty Count']].astype(int)
 
 
-country_counts.to_csv(output_file, index=False)
-print(f"Country counts have been saved to: {output_file}")
+country_counts.to_csv(OUTPUT_FILE, index=False)
+print(f"Country counts have been saved to: {OUTPUT_FILE}")

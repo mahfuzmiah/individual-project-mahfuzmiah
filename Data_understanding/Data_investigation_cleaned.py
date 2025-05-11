@@ -5,6 +5,15 @@ import re
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import sys
+from pathlib import Path
+REPO_ROOT_PATH = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT_PATH))
+from config import REPO_ROOT, DATASETS_DIR, GRAPHS_DIR  # nopep8
+# ───── CONFIG ────────────────────────────────────────────────────────────────
+PATH_CLEAN = DATASETS_DIR / "CleanedCBSDataSet.csv"  # Original dataset
+PATH_RAW = DATASETS_DIR / "WS_CBS_PUB_csv_col.csv"  # Original dataset
+output_dir = GRAPHS_DIR
 
 
 def make_ticks(date_labels, every_n_years=3):
@@ -110,11 +119,9 @@ def investigation(df, title_suffix, output_dir):
 
 if __name__ == "__main__":
     # Update these paths to your files:
-    path_clean = "/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/CleanedCBSDataSet.csv"
-    path_raw = "/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/WS_CBS_PUB_csv_col.csv"
 
-    df_clean = pd.read_csv(path_clean)
-    df_raw = pd.read_csv(path_raw)
+    df_clean = pd.read_csv(PATH_CLEAN)
+    df_raw = pd.read_csv(PATH_RAW)
 
     investigation(df_clean, " (Cleaned)", output_dir="graphs/cleaned")
     investigation(df_raw,   " (Raw)",     output_dir="graphs/raw")

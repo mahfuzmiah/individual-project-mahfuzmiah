@@ -1,5 +1,7 @@
 
-
+import sys
+from pathlib import Path
+import random
 from concurrent.futures import ProcessPoolExecutor
 import pandas as pd
 import numpy as np
@@ -11,10 +13,30 @@ import warnings
 import matplotlib.pyplot as plt
 warnings.filterwarnings("ignore")
 
-# --- Configuration ---
-TRAIN_PATH = '/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/imputed_linear.csv'
-TEST_PATH = '/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/TestingData.csv'
 
+os.environ['PYTHONHASHSEED'] = '42'
+# 2) Force TensorFlow to deterministic ops
+os.environ['TF_DETERMINISTIC_OPS'] = '1'
+os.environ['CUDA_VISIBLE_DEVICES'] = ''   # disable GPU for full determinism
+
+import tensorflow as tf  # nopep8
+
+tf.config.threading.set_intra_op_parallelism_threads(1)
+tf.config.threading.set_inter_op_parallelism_threads(1)
+# 3) Seed everything
+SEED = 42
+random.seed(SEED)
+np.random.seed(SEED)
+tf.random.set_seed(SEED)
+REPO_ROOT_PATH = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT_PATH))
+from config import REPO_ROOT, DATASETS_DIR, IMPUTED_RESULTS_DIR_TEST, IMPUTED_RESULTS_DIR_TRAIN, DIAGRAMS_DIR  # nopep8
+
+
+TRAIN_PATH = IMPUTED_RESULTS_DIR_TRAIN / "knn.csv"
+TEST_PATH = IMPUTED_RESULTS_DIR_TEST / "knn.csv"
+OUT_DIR = DIAGRAMS_DIR / "LSTM_Results_diagrams"
+OUT_DIR.mkdir(parents=True, exist_ok=True)
 # --- Utility Functions ---
 
 
@@ -66,6 +88,10 @@ n_features = 1      # univariate data
 def process_row(i):
     # For reproducibility, you can re-import necessary modules here if needed.
     # Training part:
+    seed = SEED + i
+    random.seed(seed)
+    np.random.seed(seed)
+    tf.random.set_seed(seed)
     train_series = train[train_time_series_cols].iloc[i].values
     # Check if the training series is constant
     if np.std(train_series) < 1e-6:
@@ -107,7 +133,7 @@ def process_row(i):
 
 # Process rows in parallel (for example, for the first 200 rows)
 if __name__ == '__main__':
-    NO_ITERATIONS = 200
+    NO_ITERATIONS = 20
     start_time = time.time()
     with ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
         results = list(executor.map(process_row, range(NO_ITERATIONS)))
@@ -143,8 +169,8 @@ if __name__ == '__main__':
     plt.ylabel("Value")
     plt.title("LSTM Forecast vs Actual for Row 0")
     plt.legend()
-    plt.savefig(
-        '/Users/mahfuz/Final_project/Final_repo/Diagrams/LSTM_Parrallel_forecast_selected_series.png')
+    plt.savefig(OUT_DIR / "LSTM_Parrallel_forecast_row_0.png")
+
     plt.show()
 
     # Graph 2: WMAPE over time across the processed rows
@@ -166,6 +192,5 @@ if __name__ == '__main__':
     plt.ylabel("WMAPE")
     plt.title(f"WMAPE Over Time (LSTM Forecasts) Across {NO_ITERATIONS} Rows")
     plt.grid(True)
-    plt.savefig(
-        '/Users/mahfuz/Final_project/Final_repo/Diagrams/LSTM_parallel_WMAPE_over_time.png')
+    plt.savefig(OUT_DIR / "LSTM_Parrallel_WMAPE_over_time.png", dpi=300)
     plt.show()

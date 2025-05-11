@@ -4,6 +4,23 @@ import pandas as pd
 import os
 import re
 import matplotlib.pyplot as plt
+import sys
+from pathlib import Path
+REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT))
+from config import (
+    RAW_CSV,
+    CLEANED_CSV,
+    UNIQUE_COUNTS_CSV,
+    UNIQUE_COUNTS_CLEAN_CSV,
+    COUNTRY_COUNTS_CSV,
+    COUNTRY_COUNTS_CLEAN_CSV,
+    GRAPHS_DIR,
+)  # nopep8
+# step up from this file into your repo root
+
+
+# now import the paths you defined
 
 
 def get_unique_values_summary(input_file, output_file):
@@ -42,65 +59,6 @@ def get_unique_values_summary(input_file, output_file):
     print(f"Unique values per column summary saved to {output_file}.")
 
 
-# def get_unique_values_summary_with_counts(input_file, output_file):
-#     # 1. Load dataset
-#     df = pd.read_csv(input_file)
-#     df.columns = df.columns.str.strip()
-
-#     # 2. Total distinct Reporter–Counterparty pairs (rows)
-#     total_pairs = df.shape[0]
-#     print(f"Total distinct Reporter–Counterparty pairs: {total_pairs:,}")
-
-#     # 3. Per-column non-null & unique counts
-#     records = []
-#     for col in df.columns:
-#         non_null = df[col].count()
-#         unique = df[col].nunique(dropna=True)
-#         vc = df[col].value_counts(dropna=True)
-#         top_vals = vc.to_dict() if unique <= 20 else vc.head(10).to_dict()
-#         records.append({
-#             "Column": col,
-#             "Non-Null Count": non_null,
-#             "Unique Count": unique,
-#             "Top Values & Counts": top_vals
-#         })
-#     summary_df = pd.DataFrame(records)
-
-#     # 4. Identify quarter columns
-#     is_quarter = summary_df['Column'].str.match(r"^\d{4}-Q[1-4]$")
-#     quarter_cols = summary_df.loc[is_quarter, 'Column'].tolist()
-
-#     # 5. Compute, for each quarter, unique reporters & counterparties
-#     rep_counts = {q: df.loc[df[q].notnull(), 'L_REP_CTY'].nunique()
-#                   for q in quarter_cols}
-#     cp_counts = {q: df.loc[df[q].notnull(), 'L_CP_COUNTRY'].nunique()
-#                  for q in quarter_cols}
-
-#     # 6. Add these to summary_df
-#     summary_df['NumReporters'] = summary_df['Column'].map(rep_counts)
-#     summary_df['NumCounterparties'] = summary_df['Column'].map(cp_counts)
-
-#     # 7. Grand total of filled datapoints across quarters
-#     total_points = int(summary_df.loc[is_quarter, 'Non-Null Count'].sum())
-#     print(f"Total filled datapoints across all quarters: {total_points:,}")
-
-#     # 8. Append total row
-#     total_row = {
-#         'Column': 'Total Filled Datapoints',
-#         'Non-Null Count': total_points,
-#         'Unique Count': '',
-#         'Top Values & Counts': '',
-#         'NumReporters': '',
-#         'NumCounterparties': ''
-#     }
-#     summary_df = pd.concat(
-#         [summary_df, pd.DataFrame([total_row])], ignore_index=True)
-
-#     # 9. Persist full summary
-#     os.makedirs(os.path.dirname(output_file), exist_ok=True)
-#     summary_df.to_csv(output_file, index=False)
-#     print(
-#         f"Saved summary with counts (including reporter/counterparty) to: {output_file}")
 def get_unique_values_summary_with_counts(input_file, output_file):
     # Load dataset
     df = pd.read_csv(input_file)
@@ -259,28 +217,47 @@ def draw_Unique_graphs(input_file, output_dir="graphs"):
 
 
 if __name__ == "__main__":
-    # Define input file path
-    input_file_uncleaned = "/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/WS_CBS_PUB_csv_col.csv"
-    input_file_cleaned = "/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/CleanedCBSDataSet.csv"
-    output_file_uncleaned = "/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/UniqueColumnSummary_with_counts.csv"
-    output_file_cleaned = "/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/UniqueColumnSummary_with_counts_cleaned.csv"
-    output_file_uncleaned_count = "/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/country_counts_comparison.csv"
-    output_file_cleaned_count = "/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/country_counts_comparison_cleaned.csv"
-    # Get unique values summary
-    get_unique_values_summary(input_file_uncleaned, output_file_uncleaned)
-    get_unique_values_summary(input_file_cleaned, output_file_cleaned)
+    # Define input file paths from config
+    input_unclean = RAW_CSV
+    input_clean = CLEANED_CSV
 
-    # Get unique values summary with counts
-    get_unique_values_summary_with_counts(
-        input_file_uncleaned, output_file_uncleaned_count)
-    get_unique_values_summary_with_counts(
-        input_file_cleaned, output_file_cleaned_count)
+    # Define output summary paths from config
+    out_unclean_summary = UNIQUE_COUNTS_CSV
+    out_unclean_pair_counts = COUNTRY_COUNTS_CSV
+    out_clean_summary = UNIQUE_COUNTS_CLEAN_CSV
+    out_clean_pair_counts = COUNTRY_COUNTS_CLEAN_CSV
 
+    # Graph sub-folders
+    unclean_graph_dir = GRAPHS_DIR / "unclean"
+    clean_graph_dir = GRAPHS_DIR / "cleaned"
+
+    # ---- RAW data ----
+    # 1) Unique-values list
+    get_unique_values_summary(
+        input_unclean,
+        out_unclean_summary
+    )
+    # 2) Unique-values WITH counts
+    get_unique_values_summary_with_counts(
+        input_unclean,
+        out_unclean_pair_counts
+    )
+    # 3) Draw graphs from the counts file
     draw_Unique_graphs(
-        output_file_uncleaned_count,
-        output_dir="graphs"
+        out_unclean_pair_counts,
+        output_dir=unclean_graph_dir
+    )
+
+    # ---- CLEANED data ----
+    get_unique_values_summary(
+        input_clean,
+        out_clean_summary
+    )
+    get_unique_values_summary_with_counts(
+        input_clean,
+        out_clean_pair_counts
     )
     draw_Unique_graphs(
-        output_file_cleaned_count,
-        output_dir="/Users/mahfuz/Final_project/Final_repo/graphs"
+        out_clean_pair_counts,
+        output_dir=clean_graph_dir
     )

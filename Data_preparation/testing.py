@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-# -- Your earlier steps to filter, clean, and pivot the data --
 data = {
     'L_REP_CTY': ['AT', 'AT', 'AT', 'AT', 'AT', 'AT', 'AT', 'AT'],
     'L_CP_COUNTRY': ['AD', 'AD', 'AD', 'AD', 'AD', 'AD', 'AD', 'AD'],

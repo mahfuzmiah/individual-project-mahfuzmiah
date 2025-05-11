@@ -1,5 +1,7 @@
 
-
+#!/usr/bin/env python
+import sys
+from pathlib import Path
 import time
 import numpy as np
 import pandas as pd
@@ -10,12 +12,18 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 import warnings
 import os
 warnings.filterwarnings("ignore")
+np.random.seed(42)
 
-# --- Configuration ---
-TRAIN_PATH = '/Users/mahfuz/Final_project/Final_repo/long_data.csv'
-TEST_PATH = '/Users/mahfuz/Final_project/Final_repo/long_data_test.csv'
+
+REPO_ROOT_PATH = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT_PATH))
+from config import REPO_ROOT, DATASETS_DIR, DIAGRAMS_DIR  # nopep8
 
 # --- Data Loading ---
+TRAIN_PATH = DATASETS_DIR / "long_data.csv"
+TEST_PATH = DATASETS_DIR / "long_data_test.csv"
+ARIMA_DIAGRAMS_DIR = DIAGRAMS_DIR / "Arima_diagrams"
+DIAGRAMS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def load_data(train_path=TRAIN_PATH, test_path=TEST_PATH):
@@ -26,11 +34,20 @@ def load_data(train_path=TRAIN_PATH, test_path=TEST_PATH):
 # --- Utility Functions ---
 
 
-def wmape(y_true, y_pred):
-    return (abs(y_true - y_pred)).sum() / abs(y_true).sum()
+# def wmape(y_true, y_pred):
+#     return (abs(y_true - y_pred)).sum() / abs(y_true).sum()
 
+def wmape(y_true, y_pred):
+    # mask to only keep finite pairs
+    mask = np.isfinite(y_true) & np.isfinite(y_pred)
+    y, ŷ = y_true[mask], y_pred[mask]
+    denom = np.abs(y).sum()
+    if denom == 0:
+        return np.nan
+    return np.abs(y - ŷ).sum() / denom
 
 # --- Function to convert seconds ---
+
 
 def seconds_to_hms(seconds):
     hours = int(seconds // 3600)
@@ -54,7 +71,9 @@ def process_series(uid, group, test):
             trace=False,
             error_action='ignore',
             suppress_warnings=True,
-            stepwise=True
+            stepwise=True,
+            random_state=42  # reproducible search
+
         )
         fit_end = time.time()
         fit_time = fit_end - fit_start
@@ -180,6 +199,7 @@ def arima_test_method_parallel(subset_length=None, train=None, test=None):
     if subset_length is None:
         subset_length = len(train['unique_id'].unique())
     subset_uids = train['unique_id'].unique()[:subset_length]
+
     train = train[train['unique_id'].isin(subset_uids)]
     test = test[test['unique_id'].isin(subset_uids)]
     df = train.sort_values('ds')
@@ -204,8 +224,11 @@ def arima_test_method_parallel(subset_length=None, train=None, test=None):
 
     results = pd.concat(results_list)
 
-    wmape_by_date = results.groupby(results.index).apply(
-        lambda x: wmape(x['y'], x['forecast']))
+    # wmape_by_date = results.groupby(results.index).apply(
+    #     lambda x: wmape(x['y'], x['forecast']))
+    wmape_by_date = results.groupby('ds')[['y', 'forecast']] \
+        .apply(lambda df: wmape(df['y'].values,
+                                df['forecast'].values))
 
     total_hours, total_minutes, total_secs = seconds_to_hms(total_time)
     average_time = total_time / subset_length
@@ -225,8 +248,11 @@ def arima_test_method_parallel(subset_length=None, train=None, test=None):
     plt.xlabel("Date")
     plt.ylabel("Value")
     plt.legend()
-    plt.savefig(
-        '/Users/mahfuz/Final_project/Final_repo/Diagrams/Arima_diagrams/Arima_forecast_selected_series.png')
+    plt.savefig(ARIMA_DIAGRAMS_DIR /
+                f"ArimaForecast_{subset_uids[0]}.png", dpi=300)
+
+    # plt.savefig(
+    #     '/Users/mahfuz/Final_project/Final_repo/Diagrams/Arima_diagrams/Arima_forecast_selected_series.png')
     plt.show()
     plt.close()
 
@@ -237,8 +263,10 @@ def arima_test_method_parallel(subset_length=None, train=None, test=None):
     plt.ylabel('WMAPE')
     plt.title('WMAPE Over Time (ARIMA Forecasts)')
     plt.grid(True)
-    plt.savefig(
-        '/Users/mahfuz/Final_project/Final_repo/Diagrams/Arima_diagrams/Arima_WMAPE_over_time.png')
+    plt.savefig(ARIMA_DIAGRAMS_DIR /
+                "Arima_WMAPE_over_time.png", dpi=300)
+    # plt.savefig(
+    #     '/Users/mahfuz/Final_project/Final_repo/Diagrams/Arima_diagrams/Arima_WMAPE_over_time.png')
     plt.show()
     plt.close()
 
@@ -306,9 +334,10 @@ def save_best_seasonal_decomposition(train, composite_variability, period=4):
         axes[0].set_title("")      # Clear default title on the observed plot
         axes[0].set_ylabel("Observed")
         fig.suptitle(f'Seasonal Decomposition for {best_uid}')
-
-        plt.savefig(
-            "/Users/mahfuz/Final_project/Final_repo/Diagrams/Arima_diagrams/SeasonalDecomposition.png")
+        plt.savefig(ARIMA_DIAGRAMS_DIR /
+                    f"SeasonalDecomposition_{best_uid}.png", dpi=300)
+        # plt.savefig(
+        #     "/Users/mahfuz/Final_project/Final_repo/Diagrams/Arima_diagrams/SeasonalDecomposition.png")
         plt.close()
     else:
         print("No series qualified under the early-data filter.")
@@ -320,7 +349,7 @@ def main():
     # comp_variability = calculate_composite_variability(train)
     # save_best_seasonal_decomposition(train, comp_variability)
     # estimate_time_taken_for_series(5, train, test)
-    arima_test_method_parallel(None, train, test)
+    arima_test_method_parallel(200, train, test)
 
 
 if __name__ == '__main__':

@@ -2,16 +2,20 @@ import matplotlib.pyplot as plt
 import json
 import numpy as np
 import pandas as pd
-import sys
 import os
 import re
-
-
+import sys
+from pathlib import Path
+# adjust if your folder nesting is deeper
+REPO_ROOT_PATH = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT_PATH))
+from config import REPO_ROOT, DATASETS_DIR  # nopep8
 # Input and output file paths
-input_file = "/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/WS_CBS_PUB_csv_col.csv"
-output_file = "/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/CleanedCBSDataSet.csv"
-training_file = "/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/TrainingData.csv"
-testing_file = "/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/TestingData.csv"
+
+input_file = DATASETS_DIR / "WS_CBS_PUB_csv_col.csv"
+output_file = DATASETS_DIR / "CleanedCBSDataSet.csv"
+training_file = DATASETS_DIR / "TrainingData.csv"
+testing_file = DATASETS_DIR / "TestingData.csv"
 # Load the dataset
 data = pd.read_csv(input_file)
 

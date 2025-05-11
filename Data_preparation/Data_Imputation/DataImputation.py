@@ -1,4 +1,3 @@
-
 import os
 import re
 import time
@@ -7,12 +6,23 @@ import pandas as pd
 from sklearn.impute import KNNImputer
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from scipy.stats import ks_2samp, wasserstein_distance
+import sys
+from pathlib import Path
+# so repo root is three levels up:
+REPO_ROOT_PATH = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT_PATH))
+from config import REPO_ROOT, DATASETS_DIR  # nopep8
+
+# now we can import our config
 
 # ───── CONFIG ────────────────────────────────────────────────────────────────
-DATA_DIR = "DataSetsCBS"
-TRAIN_FILE = os.path.join(DATA_DIR, "TrainingData.csv")
-TEST_FILE = os.path.join(DATA_DIR, "TestingData.csv")
-IMPUTED_DIR = "imputed_results"
+
+TRAIN_FILE = DATASETS_DIR / "TrainingData.csv"
+TEST_FILE = DATASETS_DIR / "TestingData.csv"
+IMPUTED_DIR = REPO_ROOT / "imputed_results"
+IMPUTED_DIR = REPO_ROOT / "imputed_results"
+METRICS_TRAIN = IMPUTED_DIR / "metrics_train.csv"
+METRICS_TEST = IMPUTED_DIR / "metrics_test.csv"
 MASK_FRACTION = 0.10
 DATE_PATTERN = r"^\d{4}-Q[1-4]$"
 ID_COLS = ['L_REP_CTY', 'L_CP_COUNTRY', 'CBS_BASIS']
@@ -97,7 +107,7 @@ def impute_knn_df(df, n_neighbors=5, scale=True, weights='uniform'):
 
 
 # — Core eval pipeline ——————————————————————————————————————————————
-def evaluate_on(file_path, output_metrics, out_dir):
+def evaluate_on(file_path: Path, output_metrics: Path, out_dir: Path):
     # load & mask
     os.makedirs(out_dir, exist_ok=True)
 
@@ -113,8 +123,7 @@ def evaluate_on(file_path, output_metrics, out_dir):
         masked.at[i, quarters[j]] = np.nan
 
     # ensure output dirs
-    os.makedirs(out_dir, exist_ok=True)
-
+    out_dir.mkdir(parents=True, exist_ok=True)
     # define methods
     methods = {
         "zeros":  impute_with_zeros_df,
@@ -131,7 +140,7 @@ def evaluate_on(file_path, output_metrics, out_dir):
         out = func(masked)
         elapsed = time.time() - t0
         timings[name] = elapsed
-        out.to_csv(os.path.join(out_dir, f"{name}.csv"), index=False)
+        out.to_csv(out_dir / f"{name}.csv", index=False)
         print(f"→ {name}: {elapsed:.2f}s")
 
     # collect metrics
@@ -175,10 +184,19 @@ def evaluate_on(file_path, output_metrics, out_dir):
         # Print which method has been done
         print(f"→ {method} done")
 
+    output_metrics.parent.mkdir(exist_ok=True)
     pd.DataFrame(records).to_csv(output_metrics, index=False)
     print(f"→ wrote {output_metrics}")
 
 
 if __name__ == "__main__":
-    evaluate_on(TRAIN_FILE, "metrics_train.csv", "imputed_results/train")
-    evaluate_on(TEST_FILE,  "metrics_test.csv",  "imputed_results/test")
+    evaluate_on(
+        TRAIN_FILE,
+        METRICS_TRAIN,
+        IMPUTED_DIR / "train"
+    )
+    evaluate_on(
+        TEST_FILE,
+        METRICS_TEST,
+        IMPUTED_DIR / "test"
+    )
