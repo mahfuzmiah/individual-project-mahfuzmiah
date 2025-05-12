@@ -1,36 +1,36 @@
-
-
 #!/usr/bin/env python
-
 import sys
 from pathlib import Path
+import time
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from statsforecast import StatsForecast
 from statsforecast.models import SeasonalNaive
 
+# reproducibility
+np.random.seed(42)
+
 # make sure config.py is importable
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
-from config import LONG_DATA_CSV, LONG_DATA_TEST_CSV, DIAGRAMS_DIR  # nopep8
+from config import LONG_DATA_CSV, LONG_DATA_TEST_CSV, DIAGRAMS_DIR  # noqa
 
-# reproducible “randomness” (if ever used)
-np.random.seed(42)
+# new: prediction output dir
+PRED_STATS_DIR = REPO_ROOT / "predictions" / "statistics"
+PRED_STATS_DIR.mkdir(parents=True, exist_ok=True)
+# Make Diarams directory
+DIAGRAMS_DIR = DIAGRAMS_DIR / "Statistics"
 
 
 def wmape(y_true, y_pred):
-    """Weighted MAPE, but return NaN if denominator is zero."""
     denom = np.abs(y_true).sum()
     if denom == 0:
         return np.nan
     return np.abs(y_true - y_pred).sum() / denom
 
 
-def rolling_validation(train: pd.DataFrame,
-                       train_window: pd.DateOffset,
-                       test_window: pd.DateOffset) -> pd.DataFrame:
-    """Perform rolling‐origin validation with Seasonal Naïve (season_length=4)."""
+def rolling_validation(train, train_window, test_window):
     roll_preds = []
     start = train['ds'].min()
     end = train['ds'].max()
@@ -45,12 +45,12 @@ def rolling_validation(train: pd.DataFrame,
         model = StatsForecast(
             models=[SeasonalNaive(season_length=4)],
             freq='QE', n_jobs=1
-        )
-        model.fit(train_roll)
+        ).fit(train_roll)
         p = model.predict(h=h, level=[90]).reset_index()
 
-        merged = p.merge(valid_roll, on=['ds', 'unique_id'], how='left')
-        merged['roll_start'] = start
+        merged = (p
+                  .merge(valid_roll, on=['ds', 'unique_id'], how='left')
+                  .assign(roll_start=start))
         roll_preds.append(merged)
 
         start += test_window
@@ -58,19 +58,16 @@ def rolling_validation(train: pd.DataFrame,
     return pd.concat(roll_preds, ignore_index=True)
 
 
-def final_test_evaluation(train_path: Path, test_path: Path) -> pd.DataFrame:
-    """Fit on all training data and forecast the final test period."""
+def final_test_evaluation(train_path, test_path):
     train = pd.read_csv(train_path, parse_dates=['ds'])
-    test = pd.read_csv(test_path,  parse_dates=['ds'])
+    test = pd.read_csv(test_path, parse_dates=['ds'])
     h = test['ds'].nunique()
 
     model = StatsForecast(
         models=[SeasonalNaive(season_length=4)],
         freq='QE', n_jobs=1
-    )
-    model.fit(train)
+    ).fit(train)
     p = model.predict(h=h, level=[90]).reset_index()
-
     final = p.merge(test, on=['ds', 'unique_id'],
                     how='left').dropna(subset=['y'])
     print("Final Test Overall WMAPE:", wmape(
@@ -82,17 +79,45 @@ def main():
     # — Load & prepare —
     train = pd.read_csv(LONG_DATA_CSV, parse_dates=['ds'])
     test = pd.read_csv(LONG_DATA_TEST_CSV, parse_dates=['ds'])
-    # ensure quarter‐end alignment
     train['ds'] = train['ds'] + pd.offsets.QuarterEnd()
 
     # — Rolling Validation —
     train_window = pd.DateOffset(years=5)
     test_window = pd.DateOffset(years=1)
+    t0 = time.time()
     roll = rolling_validation(train, train_window, test_window)
     roll = roll.dropna(subset=['y'])
-    overall_roll = wmape(roll['y'], roll['SeasonalNaive'])
-    print("Overall Rolling WMAPE:", overall_roll)
+    roll_time = time.time() - t0
+    print("Overall Rolling WMAPE:", wmape(roll['y'], roll['SeasonalNaive']))
 
+    # save rolling preds & actuals
+    roll_out = PRED_STATS_DIR / "seasonalnaive_rolling_preds.csv"
+    roll.to_csv(roll_out, index=False)
+    print("Wrote rolling predictions to:", roll_out)
+
+    # — Final Test Evaluation —
+    t1 = time.time()
+    final = final_test_evaluation(LONG_DATA_CSV, LONG_DATA_TEST_CSV)
+    final_time = time.time() - t1
+
+    # save final preds & actuals
+    final_out = PRED_STATS_DIR / "seasonalnaive_final_preds.csv"
+    final.to_csv(final_out, index=False)
+    print("Wrote final predictions to:", final_out)
+
+    # — Timing summary —
+    summary = pd.DataFrame([{
+        'stage': 'rolling_validation',
+        'total_time_s': round(roll_time, 2),
+        'avg_time_per_forecast_s': round(roll_time / len(roll), 4)
+    }, {
+        'stage': 'final_test',
+        'total_time_s': round(final_time, 2),
+        'avg_time_per_forecast_s': round(final_time / len(final), 4)
+    }])
+    summary_out = PRED_STATS_DIR / "seasonalnaive_timing_summary.csv"
+    summary.to_csv(summary_out, index=False)
+    print("Wrote timing summary to:", summary_out)
     # plot rolling WMAPE over time
     wmape_by_date = roll.groupby('ds').apply(
         lambda g: wmape(g['y'], g['SeasonalNaive'])
@@ -107,7 +132,8 @@ def main():
     plt.ylabel("WMAPE")
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig(out_dir / "Rolling_WMAPE_over_time.png", dpi=300)
+    plt.savefig(out_dir /
+                "Rolling_WMAPE_over_time.png", dpi=300)
     plt.close()
 
     # — Final Test Evaluation —

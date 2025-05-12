@@ -9,7 +9,7 @@ import lightgbm as lgb
 from pathlib import Path
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error
-
+import time
 # ───────────────────────────────────────────────
 # 1) determinism
 os.environ['PYTHONHASHSEED'] = '42'
@@ -27,7 +27,10 @@ TRAIN_FP = IMPUTED_RESULTS_DIR_TRAIN / "knn.csv"
 TEST_FP = IMPUTED_RESULTS_DIR_TEST / "knn.csv"
 OUT_DIR = DIAGRAMS_DIR / "LightGBM_Results_diagrams"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
-
+PRED_LGBM_IT = REPO_ROOT / "predictions" / "lightgbm_iterative"
+PRED_LGBM_IT.mkdir(parents=True, exist_ok=True)
+RUNTIME_LGBM_IT = PRED_LGBM_IT / "runtimes"
+RUNTIME_LGBM_IT.mkdir(exist_ok=True)
 TRAIN_END = pd.Period("2018Q4", freq="Q")
 FORECAST_START = pd.Period("2020Q1", freq="Q")
 FORECAST_END = pd.Period("2024Q3", freq="Q")
@@ -146,11 +149,14 @@ model = lgb.LGBMRegressor(
     bagging_seed=42,
     feature_fraction_seed=42,
 )
+t_fit_start = time.time()
+
 model.fit(
     X_tr, y_tr,
     eval_set=[(X_tr, y_tr), (X_val, y_val)],
     eval_names=['train', 'valid'],
 )
+t_fit = time.time() - t_fit_start
 
 # ───────────────────────────────────────────────
 # 7) iterative multi‐step forecast
@@ -161,6 +167,8 @@ history = pd.concat([
 ], ignore_index=True)
 
 forecasts = []
+t_fc_start = time.time()
+
 for p in pd.period_range(FORECAST_START, FORECAST_END, freq='Q'):
     # recompute features on the *full* history
     df_h = history.copy()
@@ -183,9 +191,11 @@ for p in pd.period_range(FORECAST_START, FORECAST_END, freq='Q'):
 
     # append predictions into history so next quarter’s lags use them
     history = pd.concat([history, dfp], ignore_index=True)
-
+t_fc = time.time() - t_fc_start
 all_forecasts = pd.concat(forecasts, ignore_index=True)
-
+preds_out = PRED_LGBM_IT / "iterative_forecasts.csv"
+all_forecasts.to_csv(preds_out, index=False)
+print("Wrote iterative forecasts to", preds_out)
 # ───────────────────────────────────────────────
 # 8) compute WMAPE by quarter
 wmape_by_q = (
@@ -201,6 +211,23 @@ wmape_by_q = (
 )
 
 # plot & save
+n_rows = len(all_forecasts)
+timing = pd.DataFrame([
+    {
+        'model': 'lightgbm_iterative',
+        'stage': 'train',
+        'total_time_s': round(t_fit, 2),
+        'avg_time_per_row_s': round(t_fit / n_rows, 6)
+    },
+    {
+        'model': 'lightgbm_iterative',
+        'stage': 'forecast',
+        'total_time_s': round(t_fc, 2),
+        'avg_time_per_row_s': round(t_fc / n_rows, 6)
+    }
+])
+timing.to_csv(RUNTIME_LGBM_IT/"lightgbm_iterative_timing.csv", index=False)
+print("Wrote timing summary to", RUNTIME_LGBM_IT/"lightgbm_iterative_timing.csv")
 wmape_by_q.plot(marker='o')
 plt.title("Yearly WMAPE on 2020–2024 (iterated forecast)")
 plt.ylabel("WMAPE")

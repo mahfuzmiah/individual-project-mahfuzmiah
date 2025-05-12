@@ -12,3 +12,6 @@ IMPUTED_RESULTS_DIR_TEST = REPO_ROOT / "imputed_results" / "test"
 
 # Where to save or load diagrams
 DIAGRAMS_DIR = REPO_ROOT / "Diagrams"
+
+LONG_DATA_CSV = DATASETS_DIR / "Train_long.csv"
+LONG_DATA_TEST_CSV = DATASETS_DIR / "Test_long.csv"

@@ -5,6 +5,7 @@ from statsforecast.models import Naive
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 np.random.seed(42)
 # Insert repo root onto sys.path so that config can be found:
 REPO_ROOT_PATH = Path(__file__).resolve().parents[2]
@@ -14,9 +15,11 @@ from config import (
     LONG_DATA_CSV,
     LONG_DATA_TEST_CSV,
     DIAGRAMS_DIR,
-    STATISTICAL_MODELS_DIR,
 )  # nopep8
 
+
+PRED_STATS_DIR = REPO_ROOT_PATH / "predictions" / "statistics"
+PRED_STATS_DIR.mkdir(parents=True, exist_ok=True)
 out_dir = DIAGRAMS_DIR / "Naive_Results_diagrams"
 out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -41,6 +44,8 @@ def main():
     h = test['ds'].nunique()
 
     # Instantiate and fit the model on the full training data
+    t0 = time.time()
+
     model = StatsForecast(models=[Naive()], freq='QE', n_jobs=1)
     model.fit(train)
 
@@ -60,6 +65,19 @@ def main():
     # Overall WMAPE across all series
     overall_wmape = wmape(results['y'], results['Naive'])
     print("Overall WMAPE:", overall_wmape)
+    total_sec = time.time() - t0
+    n_series = results['unique_id'].nunique()
+    avg_sec = total_sec / n_series
+
+    # 2) write a small runtime CSV
+    runtime_df = pd.DataFrame([{
+        'model': 'Naive',
+        'total_time_s': round(total_sec, 2),
+        'avg_time_per_series_s': round(avg_sec, 4)
+    }])
+    runtime_out = PRED_STATS_DIR/"naive_runtime.csv"
+    runtime_df.to_csv(runtime_out, index=False)
+    print(f"Wrote runtime summary to {runtime_out}")
 
     # Or compute per unique_id
     wmape_by_series = results.groupby('unique_id')[['y', 'Naive']].apply(
@@ -117,6 +135,35 @@ def main():
     plt.savefig(
         out_dir / f"NaiveForecast_{series_id}.png", dpi=300)
     plt.show()
+    preds_df = (
+        results
+        .rename(columns={'Naive': 'forecast', 'y': 'actual'})
+        [['unique_id', 'ds', 'actual', 'forecast']]
+    )
+    preds_out = PRED_STATS_DIR / "naive_predictions.csv"
+    preds_df.to_csv(preds_out, index=False)
+    print(f"Wrote predictions to {preds_out}")
+
+    # 2) write overall + per-series summary
+    summary_rows = []
+
+    # overall
+    summary_rows.append({
+        'unique_id': 'ALL',
+        'wmape': overall_wmape
+    })
+
+    # per-series
+    for uid, group in results.groupby('unique_id'):
+        summary_rows.append({
+            'unique_id': uid,
+            'wmape': wmape(group['y'], group['Naive'])
+        })
+
+    summary_df = pd.DataFrame(summary_rows)
+    summary_out = PRED_STATS_DIR / "naive_wmape_summary.csv"
+    summary_df.to_csv(summary_out, index=False)
+    print(f"Wrote WMAPE summary to {summary_out}")
 
 
 if __name__ == '__main__':

@@ -1,4 +1,8 @@
 
+'''RUN PROGRAM WITH 
+python modeling/Deep_learning/LSTM1.py --epochs 50 100 200
+'''
+import argparse
 import pandas as pd  # ensure pandas is in scope
 import os
 import random
@@ -56,6 +60,14 @@ def load_data(train_path=TRAIN_PATH, test_path=TEST_PATH):
 # --- Define the splitting function for a univariate sequence ---
 
 
+def parse_args():
+    p = argparse.ArgumentParser()
+    p.add_argument(
+        "--epochs", nargs="+", type=int, default=[50, 100, 200],
+        help="List of epoch counts to test (e.g. --epochs 50 100 200)")
+    return p.parse_args()
+
+
 def split_sequence(sequence, n_steps):
     X, y = list(), list()
     for i in range(len(sequence)):
@@ -76,8 +88,8 @@ def seconds_to_hms(seconds):
     return hours, minutes, secs
 
 
-def main():
-
+def main(epochs=200):
+    os.makedirs("predictions/LSTM/runtimes", exist_ok=True)
     # Load data
     train, test = load_data()
 
@@ -88,10 +100,13 @@ def main():
     n_steps = 4
     n_features = 1
     results = []
-    NO_ITERATIONS = 2
+    NO_ITERATIONS = 200
 
     start_time = time.time()
+    per_row_times = []
+
     for i in range(NO_ITERATIONS):
+        row_start = time.time()
         # --- 1) Fit on row i of train ---
         train_series = train[train_cols].iloc[i].values
         if np.std(train_series) < 1e-6:
@@ -106,7 +121,7 @@ def main():
                 Dense(1)
             ])
             model.compile(optimizer='adam', loss='mse')
-            model.fit(X_train, y_train, epochs=200, verbose=0)
+            model.fit(X_train, y_train, epochs=epochs, verbose=0)
             model_trained = model
 
         # --- 2) Warm-up window from end of training series ---
@@ -131,9 +146,20 @@ def main():
             'forecast': np.array(preds),
             'actual':   test_series
         })
+        per_row_times.append(time.time() - row_start)
 
     # End timer after processing all rows
     end_time = time.time()
+    import csv
+    with open("predictions/LSTM/runtimes/lstm1_row_times.csv", "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["row", "time_seconds"])
+        for idx, t in enumerate(per_row_times):
+            w.writerow([idx, f"{t:.4f}"])
+
+    print(
+        f"Overall time: {end_time - start_time:.2f}s; row‐avg: {np.mean(per_row_times):.4f}s")
+
     total_time = end_time - start_time
     average_time = total_time / NO_ITERATIONS
     total_predicted_time = average_time * len(train)
@@ -181,7 +207,7 @@ def main():
 
     fig.tight_layout()
     fig.savefig(OUT_DIR/"LSTM1_forecast_row_0_times.png", dpi=300)
-    plt.show()
+    # plt.show()
 
     # 1) compute wmape_by_time
     H = len(results[0]['forecast'])
@@ -226,8 +252,59 @@ def main():
 
     fig.tight_layout()
     fig.savefig(OUT_DIR / "LSTM1_WMAPE_over_time.png", dpi=300)
-    plt.show()
+    # plt.show()
+    recs = []
+    for r in results:
+        for j, (a, f) in enumerate(zip(r['actual'], r['forecast'])):
+            recs.append({
+                "row":        r['row'],
+                "horizon_idx": j,
+                "actual":     a,
+                "forecast":   f
+            })
+    df = pd.DataFrame.from_records(recs)
+    return total_time, per_row_times, results
 
 
 if __name__ == "__main__":
-    main()
+    args = parse_args()
+    os.makedirs("predictions/LSTM/runtimes", exist_ok=True)
+    os.makedirs("predictions", exist_ok=True)
+
+    all_epoch_results = []
+    for ep in args.epochs:
+        print(f"\n=== Running with epochs={ep} ===")
+        total_time, per_row_times, results = main(epochs=ep)
+
+        # write per‐epoch predictions
+        recs = []
+        for r in results:
+            for j, (a, f) in enumerate(zip(r['actual'], r['forecast'])):
+                recs.append({
+                    "row":         r['row'],
+                    "horizon_idx": j,
+                    "actual":      a,
+                    "forecast":    f
+                })
+        df = pd.DataFrame.from_records(recs)
+        out_path = f"predictions/LSTM/lstm1_predictions_{ep}epochs.csv"
+        df.to_csv(out_path, index=False)
+        print(f"Wrote predictions for {ep} epochs to {out_path}")
+
+        # record timing summary
+        all_epoch_results.append({
+            "epochs": ep,
+            "total_time_s": round(total_time, 2),
+            "avg_time_per_row_s": round(np.mean(per_row_times), 4)
+        })
+
+    # now write the summary CSV once
+    import csv
+    # Create the directory if it doesn't exist
+    summary_path = "predictions/LSTM/runtimes/lstm1_epochs_summary.csv"
+    with open(summary_path, "a", newline="") as f:
+        w = csv.DictWriter(
+            f, fieldnames=["epochs", "total_time_s", "avg_time_per_row_s"])
+        w.writeheader()
+        w.writerows(all_epoch_results)
+    print(f"Wrote epoch summary to {summary_path}")

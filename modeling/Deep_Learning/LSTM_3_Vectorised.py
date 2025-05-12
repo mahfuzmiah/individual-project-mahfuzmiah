@@ -1,259 +1,156 @@
+'''RUN WIHT python modeling/Deep_Learning/LSTM_3_Vectorised.py.py --epochs 100 500 1000 --rows 200'''
 
+#!/usr/bin/env python
+import argparse
+import time
+import os
+import random
+import sys
+from pathlib import Path
+import numpy as np
+import pandas as pd
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense
 from sklearn.preprocessing import StandardScaler
-import pandas as pd
-import matplotlib.pyplot as plt
-import os
-import random
-import numpy as np
 
-# 1) Fix Python’s hash seed
+# ─── Determinism & Seeds ─────────────────────────────────────────────────────
 os.environ['PYTHONHASHSEED'] = '42'
-# 2) Force TF deterministic ops
 os.environ['TF_DETERMINISTIC_OPS'] = '1'
-# 3) Disable GPU
 os.environ['CUDA_VISIBLE_DEVICES'] = ''
-
-# 4) Seed Python & NumPy
 SEED = 42
 random.seed(SEED)
 np.random.seed(SEED)
-
-
-tf.config.threading.set_intra_op_parallelism_threads(1)
-tf.config.threading.set_inter_op_parallelism_threads(1)
-tf.random.set_seed(42)
-
-
-# 5) Now import TensorFlow and pin threads & seed it
-tf.config.threading.set_intra_op_parallelism_threads(1)
-tf.config.threading.set_inter_op_parallelism_threads(1)
 tf.random.set_seed(SEED)
+tf.config.threading.set_intra_op_parallelism_threads(1)
+tf.config.threading.set_inter_op_parallelism_threads(1)
 
-# 6) Only now import Keras, sklearn, etc.
+# ─── Paths & Config ───────────────────────────────────────────────────────────
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
-from config import DATASETS_DIR, DIAGRAMS_DIR, IMPUTED_RESULTS_DIR_TEST, IMPUTED_RESULTS_DIR_TRAIN  # nopep8
+from config import IMPUTED_RESULTS_DIR_TRAIN, IMPUTED_RESULTS_DIR_TEST, DIAGRAMS_DIR  # nopep8
 
-# --- Configuration ---
-TRAIN_PATH = IMPUTED_RESULTS_DIR_TRAIN / "knn.csv"
-TEST_PATH = IMPUTED_RESULTS_DIR_TEST / "knn.csv"
+TRAIN_CSV = IMPUTED_RESULTS_DIR_TRAIN / "knn.csv"
+TEST_CSV = IMPUTED_RESULTS_DIR_TEST / "knn.csv"
+
+PRED_DIR = REPO_ROOT / "predictions" / "LSTM"
+RUNTIME_DIR = PRED_DIR / "runtimes"
+PRED_DIR.mkdir(exist_ok=True)
+RUNTIME_DIR.mkdir(exist_ok=True)
+
 OUT_DIR = DIAGRAMS_DIR / "LSTM_Results_diagrams"
-OUT_DIR.mkdir(parents=True, exist_ok=True)
-# --- Utility Functions ---
+OUT_DIR.mkdir(exist_ok=True)
 
-
-# --- Utility Functions ---
-scaler = StandardScaler()
+# ─── Utility Functions ────────────────────────────────────────────────────────
 
 
 def wmape(y_true, y_pred):
-    return (abs(y_true - y_pred)).sum() / abs(y_true).sum()
+    d = np.nansum(np.abs(y_true))
+    return np.nan if d == 0 else np.nansum(np.abs(y_true-y_pred))/d
 
 
-def load_data(train_path=TRAIN_PATH, test_path=TEST_PATH):
-    train = pd.read_csv(train_path)
-    test = pd.read_csv(test_path)
-    return train, test
-
-
-def split_sequence_vectorized(sequence, n_steps):
-    """
-    Given a 2D array 'sequence' of shape (T, R) where T is the number of time steps
-    and R is the number of features (in our case, each column vector from the original data),
-    this function creates overlapping windows of length n_steps and the following column as the target.
-    """
+def split_sequence_vectorized(seq, n_steps):
     X, y = [], []
-    T = sequence.shape[0]
-    for i in range(T - n_steps):
-        seq_x = sequence[i:i+n_steps, :]  # shape: (n_steps, R)
-        seq_y = sequence[i+n_steps, :]      # shape: (R,)
-        X.append(seq_x)
-        y.append(seq_y)
+    for i in range(seq.shape[0]-n_steps):
+        X.append(seq[i:i+n_steps])
+        y.append(seq[i+n_steps])
     return np.array(X), np.array(y)
 
-
-def seconds_to_hms(seconds):
-    hours = int(seconds // 3600)
-    minutes = int((seconds % 3600) // 60)
-    secs = seconds % 60
-    return hours, minutes, secs
+# ─── Main ─────────────────────────────────────────────────────────────────────
 
 
-# --- TensorFlow GPU Configuration ---
-os.environ["CUDA_VISIBLE_DEVICES"] = ""  # disables all GPU devices
-tf.config.set_visible_devices([], 'GPU')
-# Uncomment the line above to enable GPU usage
-print("Is GPU available?", tf.config.list_physical_devices('GPU'))
-print("Devices:", device_lib.list_local_devices())
-print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
-print("Num CPUs Available: ", len(tf.config.list_physical_devices('CPU')))
+def main(epochs_list, max_rows=None):
+    # 1) load & (optionally) truncate rows
+    train_df = pd.read_csv(TRAIN_CSV)
+    test_df = pd.read_csv(TEST_CSV)
+    if max_rows:
+        train_df = train_df.iloc[:max_rows]
+        test_df = test_df.iloc[:max_rows]
+    # 2) extract just the time‐series columns
+    train_data = train_df.iloc[:, 3:].values   # shape (R, T)
+    test_data = test_df .iloc[:, 3:].values
 
-# -------------- Data Preparation and Model Training --------------
+    # 3) scale/transpose
+    scaler = StandardScaler()
+    train_T = scaler.fit_transform(train_data.T)
+    test_T = scaler.transform(test_data .T)
 
+    n_steps = 4
+    # n_features = train_T.shape[1]   # = number of (possibly truncated) rows
+    n_features = train_T.shape[1]  # = number of (possibly truncated) rows
 
-# Load data
-train, test = load_data()
+    X_train, y_train = split_sequence_vectorized(train_T, n_steps)
 
-df = pd.read_csv(TEST_PATH)
+    # loop over each epoch setting
+    summary = []
+    for ep in epochs_list:
+        print(f"\n=== EPOCHS = {ep} ===")
+        # 4) build & train
+        model = Sequential([
+            LSTM(100, return_sequences=True,
+                 input_shape=(n_steps, n_features)),
+            LSTM(50),
+            Dense(n_features)
+        ])
+        model.compile('adam', 'mse')
 
-# Convert applicable columns to numeric types explicitly
-df = df.infer_objects(copy=False)
+        t0 = time.time()
+        model.fit(X_train, y_train, epochs=ep, verbose=0)
+        # 5) iterative forecast
+        preds = []
+        buf = list(test_T[:n_steps])
+        H = test_T.shape[0] - n_steps
+        for _ in range(H):
+            x = np.array(buf[-n_steps:]).reshape((1, n_steps, n_features))
+            p = model.predict(x, verbose=0)[0]
+            preds.append(p)
+            buf.append(p)
+        total_sec = time.time() - t0
 
-# Select numerical columns separately
-numeric_cols = df.select_dtypes(include=['number']).columns
+        # invert‐scale & reshape
+        full = np.vstack([test_T[:n_steps], np.array(preds)])
+        inv = scaler.inverse_transform(full)
+        # extract the forecasted rows/time‐steps
+        recs = []
+        for row in range(n_features):
+            actual = test_data[row, n_steps:]
+            forecast = inv[n_steps:, row]
+            for j, (a, f) in enumerate(zip(actual, forecast)):
+                recs.append({
+                    'row': row,
+                    'horizon_idx': j,
+                    'actual': a,
+                    'forecast': f
+                })
+        # 6) dump this epoch’s predictions
+        out_pred = PRED_DIR/f"vector_lstm_preds_{ep}epochs.csv"
+        pd.DataFrame.from_records(recs).to_csv(out_pred, index=False)
+        print(" Wrote:", out_pred.name)
 
-# Create a copy of the original DataFrame to retain non-numeric data
-df_filled = df.copy()
+        # 7) record runtime summary
+        summary.append({
+            'epochs': ep,
+            'total_time_s': round(total_sec, 2),
+            'avg_time_per_row_s': round(total_sec/n_features, 4)
+        })
 
-# Interpolate only numerical columns using linear interpolation along rows (axis=1)
-df_filled[numeric_cols] = df_filled[numeric_cols].interpolate(
-    method='linear',
-    axis=1,
-    limit_direction='both'
-)
-
-# Fill any remaining NaN values with 0
-test = df_filled.fillna(0)
-
-
-# Assume the first 3 columns are metadata; time-series data starts from the 4th column.
-# Original shape: (R, T) where each row is a time series.
-# shape: (R, min(T, 200))
-
-train_data = train[train.columns[3:]].values
-
-# shape: (R, min(T, 200))
-test_data = test[test.columns[3:]].values
-
-# Transpose so that the time axis is vertical:
-# New shape: (min(T, 200), R) where each row is a time step and each column is a feature (the entire vector downwards)
-train_data_T = train_data.T
-test_data_T = test_data.T
-train_data_T = scaler.fit_transform(train_data_T)
-test_data_T = scaler.transform(test_data_T)
-
-# Define hyperparameters:
-n_steps = 4  # number of time steps per input window
-# now n_features is the number of rows in the original data
-n_features = train_data_T.shape[1]
-print(n_features)
-
-# Build training dataset from transposed training data:
-X_train, y_train = split_sequence_vectorized(train_data_T, n_steps)
-# X_train shape: (samples, n_steps, n_features)
-# y_train shape: (samples, n_features)
-
-# Define and compile the LSTM model:
-train_time_start = time.time()
-model = Sequential()
-model.add(LSTM(100, input_shape=(
-    n_steps, X_train.shape[2]), return_sequences=True))
-model.add(LSTM(50))
-# The final layer should have n_features units because we are predicting n_features values.
-# output a vector of size n_features (predicts entire next column)
-model.add(Dense(X_train.shape[2]))
-model.compile(optimizer='adam', loss='mse')
-
-# Train the model:
-model.fit(X_train, y_train, epochs=1000, verbose=1)
-train_end_time = time.time()
-# For iterative prediction on test data:
-T_test = test_data_T.shape[0]   # total number of time steps in test data
-n_predictions = T_test - n_steps  # number of predictions to generate
-
-
-# Use the first n_steps rows of test_data_T as the initial window:
-current_input = test_data_T[:n_steps, :]  # shape: (n_steps, n_features)
-predictions = []
-test_time_series_cols = test.columns[3:]
-predict_start_time = time.time()
-for i in range(n_predictions):
-    x_input = current_input.reshape((1, n_steps, n_features))
-    yhat = model.predict(x_input, verbose=1)  # shape: (1, n_features)
-    predictions.append(yhat[0])
-    # Update window: remove the oldest row and append the new predicted row:
-    current_input = np.concatenate([current_input[1:], yhat], axis=0)
-
-predictions = np.array(predictions)  # shape: (n_predictions, n_features)
-
-# The full forecast: combine the initial seed with predictions (should match test_data_T shape)
-full_forecast = np.concatenate([test_data_T[:n_steps, :], predictions], axis=0)
-predictions_end_time = time.time()
-results = []
-# Loop over each original row (each column in full_forecast)
-for i in range(n_features):
-    # Forecast for row i: skip the initial n_steps seed values
-    forecast = full_forecast[n_steps:, i]
-    # Actual test series for row i comes from test_data.
-    # Assuming test_data has shape (n_rows, T) with T columns,
-    # use the same horizon: columns from n_steps onward.
-    actual = test_data[i, n_steps:]
-    results.append({'row': i, 'forecast': forecast, 'actual': actual})
-# Assuming test_time_series_cols has 23 date labels, and n_steps=4:
-# This will have 23 - 4 = 19 labels
-date_labels = list(test_time_series_cols[n_steps:])
-print("Training time:", seconds_to_hms(train_end_time - train_time_start))
-print("Prediction time:", seconds_to_hms(
-    predictions_end_time - predictions_end_time))
-# For Graph 1 (for the first row):
-first_actual = test_data[0, n_steps:]  # shape (19,)
-first_forecast = predictions[:, 0]          # shape (19,)
-second_actual = test_data[1, n_steps:]  # shape (19,)
-second_forecast = predictions[:, 1]          # shape (19,)
-
-print(f"First actual values: {first_actual}")
-print(f"First forecast values: {first_forecast}")
-print(f"Second actual values: {second_actual}")
-print(f"Second forecast values: {second_forecast}")
-plt.figure(figsize=(10, 5))
-plt.plot(date_labels, first_actual, label='Actual Feature 0', marker='o')
-plt.plot(date_labels, first_forecast, label='Forecast Feature 0', marker='x')
-plt.xlabel("Date")
-plt.ylabel("Value")
-plt.title("Forecast vs Actual for Feature 0")
-plt.xticks(rotation=45)
-plt.tight_layout()
-plt.savefig(
-    OUT_DIR / "Forecast_vs_Actual_Feature_0.png", dpi=300)
-plt.show()
+    # 8) write out the summary once
+    pd.DataFrame(summary)\
+      .to_csv(
+        RUNTIME_DIR/"vector_lstm_summary.csv",
+        index=False,
+        columns=['epochs', 'total_time_s', 'avg_time_per_row_s']
+    )
+    print("Wrote summary to:", "vector_lstm_summary.csv")
 
 
-# The full forecast (concatenating the seed with predictions)
-full_forecast = np.concatenate([test_data_T[:n_steps, :], predictions], axis=0)
-# Inverse transform the full forecast predictions to the original scale
-full_forecast_original = scaler.inverse_transform(full_forecast)
+if __name__ == "__main__":
+    p = argparse.ArgumentParser()
+    p.add_argument("--epochs", nargs="+", type=int,
+                   default=[100, 500, 1000],
+                   help="Which epoch counts to try")
+    p.add_argument("--rows", type=int, default=None,
+                   help="If set, only use the first N rows of the data")
+    args = p.parse_args()
 
-# Build results using the inverse-transformed forecasts
-results = []
-for i in range(n_features):
-    # Use inverse-transformed forecast for proper comparison
-    forecast = full_forecast_original[n_steps:, i]
-    actual = test_data[i, n_steps:]
-    results.append({'row': i, 'forecast': forecast, 'actual': actual})
-
-# Calculate WMAPE over forecast time steps
-H = len(results[0]['forecast'])
-wmape_by_time = []
-for j in range(H):
-    all_actual = np.array([res['actual'][j] for res in results])
-    all_forecast = np.array([res['forecast'][j] for res in results])
-    wmape_val = wmape(all_actual, all_forecast)
-    wmape_by_time.append(wmape_val)
-
-for j, val in enumerate(wmape_by_time):
-    print(f"Time step {j}: WMAPE = {val}")
-
-xvals = list(range(n_steps, n_steps + H))
-plt.figure(figsize=(10, 5))
-plt.plot(date_labels, wmape_by_time, marker='o')
-plt.xlabel("Forecast Time Step")
-plt.ylabel("WMAPE")
-plt.title(f"WMAPE Over Time (LSTM Forecasts) Across Rows")
-plt.grid(True)
-plt.savefig(
-    OUT_DIR / "LSTM_Parrallel_WMAPE_over_time.png", dpi=300)
-
-plt.show()
+    main(args.epochs, args.rows)

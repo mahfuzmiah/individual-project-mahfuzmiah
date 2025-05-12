@@ -9,7 +9,7 @@ import lightgbm as lgb
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import PredefinedSplit, RandomizedSearchCV
 from pathlib import Path
-
+import time
 # ───── CONFIG ────────────────────────────────────────────────────────────────
 os.environ['PYTHONHASHSEED'] = '42'
 os.environ['OMP_NUM_THREADS'] = '1'
@@ -111,8 +111,8 @@ def add_features(long):
 
 def main():
     # Load & prep
-    train_long = prepare_long(TRAIN_PATH, 20)
-    test_long = prepare_long(TEST_PATH, 20)
+    train_long = prepare_long(TRAIN_PATH, 2)
+    test_long = prepare_long(TEST_PATH, 2)
     train_long, test_long = add_static_stats(train_long, test_long)
 
     # Feature engineering
@@ -158,18 +158,23 @@ def main():
                               n_iter=50, cv=ps,
                               scoring='neg_root_mean_squared_error',
                               n_jobs=-1, verbose=1, random_state=42)
+    tune_start = time.time()
     rand.fit(X_tv, y_tv)
+    tune_time = time.time() - tune_start
 
     # Refit best on 2005–2018Q4
     best = rand.best_estimator_
     tr = train_long[train_long['period'] <= TRAIN_END]
+    t0 = time.time()
     best.fit(tr[feat_cols], tr['y'])
-
     # Test eval
     tw = test_long[(test_long['period'] >= TEST_START) &
                    (test_long['period'] <= TEST_END)].copy()
+    t0 = time.time()
     tw['y_pred'] = np.expm1(best.predict(tw[feat_cols]))
     tw['y_true'] = np.expm1(tw['y'])
+    total_time = time.time() - t0
+    n_points = len(tw)   # number of test‐rows you predicted
 
     # Quarterly metrics
     metrics_q = (tw.groupby('period').apply(lambda g: pd.Series({
@@ -179,6 +184,45 @@ def main():
     })).reset_index())
 
     print(metrics_q)
+    PRED_DIR = REPO_ROOT / "predictions" / "lightgbm"
+    RUNTIME_DIR = PRED_DIR / "runtimes"
+    PRED_DIR.mkdir(exist_ok=True, parents=True)
+    RUNTIME_DIR.mkdir(exist_ok=True, parents=True)
+
+    # select the identifiers you want plus period, actual, pred
+    preds_df = tw.reset_index()[[
+        'L_REP_CTY', 'L_CP_COUNTRY', 'CBS_BASIS', 'period', 'y_true', 'y_pred'
+    ]]
+    preds_out = PRED_DIR / "lightgbm_V4_test_predictions.csv"
+    preds_df.to_csv(preds_out, index=False)
+    print(f"Wrote LightGBM predictions to {preds_out}")
+
+    # ------------------------------------------------------------------------
+    # 7) Save timing summary
+    # ------------------------------------------------------------------------
+    # 2) dump timing summary
+
+    timing_rows = [
+        {
+            'model':            'lightgbm',
+            'stage':            'hyperparameter_tuning',
+            'total_time_s':     round(tune_time, 2),
+            'avg_time_per_row_s': np.nan,
+            'n_candidates':     len(rand.cv_results_['params'])
+        },
+        {
+            'model':            'lightgbm',
+            'stage':            'train_and_predict',
+            'total_time_s':     round(total_time, 2),
+            'avg_time_per_row_s': round(total_time / n_points, 4),
+            'n_candidates':     np.nan
+        }
+    ]
+
+    timing_df = pd.DataFrame(timing_rows)
+    timing_out = RUNTIME_DIR/"lightgbm_timing_summary.csv"
+    timing_df.to_csv(timing_out, index=False)
+    print("Wrote timing summary to", timing_out)
     print(
         f"Overall nonzero RMSE: {rmse(tw['y_true'][tw['y_true'] > 0], tw['y_pred'][tw['y_true'] > 0]):.1f}")
     print(f"Overall SMAPE: {smape(tw['y_true'], tw['y_pred']):.2f}%")
