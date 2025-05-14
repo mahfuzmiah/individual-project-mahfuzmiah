@@ -111,8 +111,8 @@ def add_features(long):
 
 def main():
     # Load & prep
-    train_long = prepare_long(TRAIN_PATH, 2)
-    test_long = prepare_long(TEST_PATH, 2)
+    train_long = prepare_long(TRAIN_PATH, 200)
+    test_long = prepare_long(TEST_PATH, 200)
     train_long, test_long = add_static_stats(train_long, test_long)
 
     # Feature engineering

@@ -7,12 +7,13 @@ from sklearn.impute import KNNImputer
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from scipy.stats import ks_2samp, wasserstein_distance
 import sys
+from typing import Sequence
 from pathlib import Path
 # so repo root is three levels up:
 REPO_ROOT_PATH = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT_PATH))
 from config import REPO_ROOT, DATASETS_DIR  # nopep8
-
+np.random.seed(42)
 # now we can import our config
 
 # ───── CONFIG ────────────────────────────────────────────────────────────────
@@ -107,7 +108,7 @@ def impute_knn_df(df, n_neighbors=5, scale=True, weights='uniform'):
 
 
 # — Core eval pipeline ——————————————————————————————————————————————
-def evaluate_on(file_path: Path, output_metrics: Path, out_dir: Path):
+def evaluate_on(file_path: Path, output_metrics: Path, out_dir: Path, knn_values: Sequence[int] = (3, 5, 7, 10)):
     # load & mask
     os.makedirs(out_dir, exist_ok=True)
 
@@ -130,8 +131,11 @@ def evaluate_on(file_path: Path, output_metrics: Path, out_dir: Path):
         "ffill":  impute_forward_fill_df,
         "linear": impute_linear_interpolation_df,
         "poly": lambda df: impute_polynomial_interpolation_df(df, order=3),
-        "knn": lambda df: impute_knn_df(df, n_neighbors=7, weights="distance"),
     }
+    for k in knn_values:
+        methods[f"knn_{k}"] = lambda df, k=k: impute_knn_df(
+            df, n_neighbors=k, weights="distance"
+        )
 
     # run imputers, time each, save CSVs
     timings = {}
@@ -172,6 +176,7 @@ def evaluate_on(file_path: Path, output_metrics: Path, out_dir: Path):
         ks = ks_2samp(ov, iv)[0]
         wd = wasserstein_distance(ov, iv)
         time_s = timings.get(method, np.nan)
+        k = int(method.split("_")[1]) if method.startswith("knn_") else None
 
         records.append({
             "method":      method,
@@ -193,10 +198,10 @@ if __name__ == "__main__":
     evaluate_on(
         TRAIN_FILE,
         METRICS_TRAIN,
-        IMPUTED_DIR / "train"
-    )
+        IMPUTED_DIR / "train",
+        knn_values=[1, 3, 5, 7, 9])
     evaluate_on(
         TEST_FILE,
         METRICS_TEST,
-        IMPUTED_DIR / "test"
-    )
+        IMPUTED_DIR / "test",
+        knn_values=[1, 3, 5, 7, 9])

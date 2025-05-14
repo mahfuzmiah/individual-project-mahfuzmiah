@@ -40,13 +40,16 @@ def test_evaluate_imputers(tmp_path, make_synthetic):
     # Run your imputation evaluation
     evaluate_on(csv, metrics, out_dir)
 
-    # Each imputer writes a CSV
-    for method in ["zeros", "ffill", "linear", "poly", "knn"]:
+    base_methods = ["zeros", "ffill", "linear", "poly"]
+    # pick up all knn_*.csv files
+    knn_methods = sorted(p.stem for p in out_dir.glob("knn_*.csv"))
+    assert knn_methods, "No knn_<k>.csv files were generated"
+    for method in base_methods + knn_methods:
         assert (out_dir / f"{method}.csv").is_file()
 
     # Metrics file lists all methods
     dfm = pd.read_csv(metrics)
-    assert set(dfm["method"]) == {"zeros", "ffill", "linear", "poly", "knn"}
-    # Numeric metrics non-negative
+    expected = set(base_methods + knn_methods)
+    assert set(dfm["method"]) == expected    # Numeric metrics non-negative
     num_cols = ["MAE", "RMSE", "KS", "Wasserstein", "time_sec"]
     assert (dfm[num_cols] >= 0).all().all()

@@ -107,8 +107,8 @@ def add_more_features(df):
 def main():
     # ───────────────────────────────────────────────
     # 5) load + engineer both train & test up to 2019Q4
-    train_long = prepare_long(TRAIN_FP, 50)
-    test_long = prepare_long(TEST_FP, 50)
+    train_long = prepare_long(TRAIN_FP, 200)
+    test_long = prepare_long(TEST_FP, 200)
 
     for df in (train_long, test_long):
         add_features(df)

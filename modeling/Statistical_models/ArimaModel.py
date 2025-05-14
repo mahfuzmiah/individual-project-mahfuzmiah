@@ -1,4 +1,4 @@
-
+# Run with python modeling/Statistical_models/ArimaModel.py
 #!/usr/bin/env python
 import sys
 from pathlib import Path
@@ -124,6 +124,7 @@ def arima_test_method_in_series(subset_length=None, train=None, test=None):
     df = train.sort_values('ds')
 
     results_list = []
+    timing_rows = []
     total_fit_time = 0.0
     total_forecast_time = 0.0
 
@@ -143,7 +144,9 @@ def arima_test_method_in_series(subset_length=None, train=None, test=None):
                 stepwise=True
             )
             fit_end = time.time()
-            total_fit_time += (fit_end - fit_start)
+
+            fit_time = fit_end - fit_start
+            total_fit_time += fit_time
         except Exception as e:
             print(f"Could not fit model for series {uid}: {e}")
             continue
@@ -157,12 +160,21 @@ def arima_test_method_in_series(subset_length=None, train=None, test=None):
         forecast_start = time.time()
         forecast = stepwise_fit.predict(n_periods=n_periods)
         forecast_end = time.time()
-        total_forecast_time += (forecast_end - forecast_start)
+        forecast_time = forecast_end - forecast_start
+        total_forecast_time += forecast_time
         forecast_index = test_series.index[:n_periods]
         forecast_series = pd.Series(
             forecast, index=forecast_index, name='forecast')
         merged = pd.concat([test_series, forecast_series], axis=1)
         merged['unique_id'] = uid
+        # attach timings to each row of this series
+        merged['fit_time'] = fit_time
+        merged['forecast_time'] = forecast_time
+        timing_rows.append({
+            'unique_id': uid,
+            'fit_time_s': fit_time,
+            'forecast_time_s': forecast_time
+        })
         results_list.append(merged)
         error = wmape(merged['y'], merged['forecast'])
         print(
@@ -175,9 +187,24 @@ def arima_test_method_in_series(subset_length=None, train=None, test=None):
     results = pd.concat(results_list)
     preds = results.reset_index().rename(
         columns={'y': 'actual', 'forecast': 'forecast'})
-    preds_out = PRED_ARIMA_DIR / "arima_parallel_predictions.csv"
+    preds_out = PRED_ARIMA_DIR / "arima_Series_predictions.csv"
     preds.to_csv(preds_out, index=False)
     print(f"Wrote ARIMA predictions to {preds_out}")
+    summary = {
+        'model': 'arima_series',
+        'total_time_s': round(total_fit_time + total_forecast_time, 2),
+        'avg_time_per_series_s': round((total_fit_time + total_forecast_time) / subset_length, 4)
+    }
+    summary_df = pd.DataFrame([summary])
+    # append to a single timing file
+    summary_path = PRED_ARIMA_DIR / "arima_timing_summary.csv"
+    summary_df.to_csv(
+        summary_path,
+        mode='a',
+        index=False,
+        header=not summary_path.exists()
+    )
+    print(f"Appended series timing to {summary_path}")
     return total_fit_time, total_forecast_time
 
 # Estimate total time taken to process dataset in series
@@ -229,14 +256,21 @@ def arima_test_method_parallel(subset_length=None, train=None, test=None):
     n_series = len(subset_uids)
     avg_time = total_time / n_series
     # 2) dump timing summary
-    timing_df = pd.DataFrame([{
+    # append parallel run summary to the same file
+    summary = {
         'model': 'arima_parallel',
         'total_time_s': round(total_time, 2),
         'avg_time_per_series_s': round(avg_time, 4)
-    }])
-    timing_out = PRED_ARIMA_DIR/"arima_timing_summary.csv"
-    timing_df.to_csv(timing_out, index=False)
-    print(f"Wrote timing summary to {timing_out}")
+    }
+    summary_df = pd.DataFrame([summary])
+    summary_path = PRED_ARIMA_DIR / "arima_timing_summary.csv"
+    summary_df.to_csv(
+        summary_path,
+        mode='a',
+        index=False,
+        header=not summary_path.exists()
+    )
+    print(f"Appended parallel timing to {summary_path}")
 
     if not results_list:
         print("No forecast results available.")
@@ -381,7 +415,8 @@ def main():
     # comp_variability = calculate_composite_variability(train)
     # save_best_seasonal_decomposition(train, comp_variability)
     # estimate_time_taken_for_series(5, train, test)
-    arima_test_method_parallel(10, train, test)
+    arima_test_method_parallel(200, train, test)
+    arima_test_method_in_series(200, train, test)
 
 
 if __name__ == '__main__':
