@@ -2,3 +2,5 @@ model,total_time_s,avg_time_per_series_s
 arima_parallel,45.16,0.2258
 arima_series,238.53,1.1926
 
+arima_series,0.0,0.0
+arima_series,0.0,0.0
