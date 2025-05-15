@@ -1,5 +1,7 @@
-
-
+# Run with python modeling/Statistical_models/ArimaModel.py
+#!/usr/bin/env python
+import sys
+from pathlib import Path
 import time
 import numpy as np
 import pandas as pd
@@ -10,12 +12,20 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 import warnings
 import os
 warnings.filterwarnings("ignore")
+np.random.seed(42)
 
-# --- Configuration ---
-TRAIN_PATH = '/Users/mahfuz/Final_project/Final_repo/long_data.csv'
-TEST_PATH = '/Users/mahfuz/Final_project/Final_repo/long_data_test.csv'
+
+REPO_ROOT_PATH = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT_PATH))
+from config import REPO_ROOT, DATASETS_DIR, DIAGRAMS_DIR, LONG_DATA_CSV, LONG_DATA_TEST_CSV  # nopep8
 
 # --- Data Loading ---
+TRAIN_PATH = LONG_DATA_CSV
+TEST_PATH = LONG_DATA_TEST_CSV
+ARIMA_DIAGRAMS_DIR = DIAGRAMS_DIR / "Arima_diagrams"
+DIAGRAMS_DIR.mkdir(parents=True, exist_ok=True)
+PRED_ARIMA_DIR = REPO_ROOT_PATH / "predictions" / "arima"
+PRED_ARIMA_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def load_data(train_path=TRAIN_PATH, test_path=TEST_PATH):
@@ -26,11 +36,20 @@ def load_data(train_path=TRAIN_PATH, test_path=TEST_PATH):
 # --- Utility Functions ---
 
 
-def wmape(y_true, y_pred):
-    return (abs(y_true - y_pred)).sum() / abs(y_true).sum()
+# def wmape(y_true, y_pred):
+#     return (abs(y_true - y_pred)).sum() / abs(y_true).sum()
 
+def wmape(y_true, y_pred):
+    # mask to only keep finite pairs
+    mask = np.isfinite(y_true) & np.isfinite(y_pred)
+    y, ŷ = y_true[mask], y_pred[mask]
+    denom = np.abs(y).sum()
+    if denom == 0:
+        return np.nan
+    return np.abs(y - ŷ).sum() / denom
 
 # --- Function to convert seconds ---
+
 
 def seconds_to_hms(seconds):
     hours = int(seconds // 3600)
@@ -54,7 +73,9 @@ def process_series(uid, group, test):
             trace=False,
             error_action='ignore',
             suppress_warnings=True,
-            stepwise=True
+            stepwise=True,
+            random_state=42  # reproducible search
+
         )
         fit_end = time.time()
         fit_time = fit_end - fit_start
@@ -103,6 +124,7 @@ def arima_test_method_in_series(subset_length=None, train=None, test=None):
     df = train.sort_values('ds')
 
     results_list = []
+    timing_rows = []
     total_fit_time = 0.0
     total_forecast_time = 0.0
 
@@ -122,7 +144,9 @@ def arima_test_method_in_series(subset_length=None, train=None, test=None):
                 stepwise=True
             )
             fit_end = time.time()
-            total_fit_time += (fit_end - fit_start)
+
+            fit_time = fit_end - fit_start
+            total_fit_time += fit_time
         except Exception as e:
             print(f"Could not fit model for series {uid}: {e}")
             continue
@@ -136,12 +160,21 @@ def arima_test_method_in_series(subset_length=None, train=None, test=None):
         forecast_start = time.time()
         forecast = stepwise_fit.predict(n_periods=n_periods)
         forecast_end = time.time()
-        total_forecast_time += (forecast_end - forecast_start)
+        forecast_time = forecast_end - forecast_start
+        total_forecast_time += forecast_time
         forecast_index = test_series.index[:n_periods]
         forecast_series = pd.Series(
             forecast, index=forecast_index, name='forecast')
         merged = pd.concat([test_series, forecast_series], axis=1)
         merged['unique_id'] = uid
+        # attach timings to each row of this series
+        merged['fit_time'] = fit_time
+        merged['forecast_time'] = forecast_time
+        timing_rows.append({
+            'unique_id': uid,
+            'fit_time_s': fit_time,
+            'forecast_time_s': forecast_time
+        })
         results_list.append(merged)
         error = wmape(merged['y'], merged['forecast'])
         print(
@@ -152,6 +185,26 @@ def arima_test_method_in_series(subset_length=None, train=None, test=None):
         return
 
     results = pd.concat(results_list)
+    preds = results.reset_index().rename(
+        columns={'y': 'actual', 'forecast': 'forecast'})
+    preds_out = PRED_ARIMA_DIR / "arima_Series_predictions.csv"
+    preds.to_csv(preds_out, index=False)
+    print(f"Wrote ARIMA predictions to {preds_out}")
+    summary = {
+        'model': 'arima_series',
+        'total_time_s': round(total_fit_time + total_forecast_time, 2),
+        'avg_time_per_series_s': round((total_fit_time + total_forecast_time) / subset_length, 4)
+    }
+    summary_df = pd.DataFrame([summary])
+    # append to a single timing file
+    summary_path = PRED_ARIMA_DIR / "arima_timing_summary.csv"
+    summary_df.to_csv(
+        summary_path,
+        mode='a',
+        index=False,
+        header=not summary_path.exists()
+    )
+    print(f"Appended series timing to {summary_path}")
     return total_fit_time, total_forecast_time
 
 # Estimate total time taken to process dataset in series
@@ -180,11 +233,14 @@ def arima_test_method_parallel(subset_length=None, train=None, test=None):
     if subset_length is None:
         subset_length = len(train['unique_id'].unique())
     subset_uids = train['unique_id'].unique()[:subset_length]
+
     train = train[train['unique_id'].isin(subset_uids)]
     test = test[test['unique_id'].isin(subset_uids)]
     df = train.sort_values('ds')
 
     results_list = []
+    t0 = time.time()
+
     with ProcessPoolExecutor(max_workers=os.cpu_count()
                              ) as executor:
         futures = []
@@ -196,7 +252,25 @@ def arima_test_method_parallel(subset_length=None, train=None, test=None):
             if merged is not None:
                 results_list.append(merged)
         end_time = time.time()
-        total_time = end_time - start_time
+    total_time = time.time() - t0
+    n_series = len(subset_uids)
+    avg_time = total_time / n_series
+    # 2) dump timing summary
+    # append parallel run summary to the same file
+    summary = {
+        'model': 'arima_parallel',
+        'total_time_s': round(total_time, 2),
+        'avg_time_per_series_s': round(avg_time, 4)
+    }
+    summary_df = pd.DataFrame([summary])
+    summary_path = PRED_ARIMA_DIR / "arima_timing_summary.csv"
+    summary_df.to_csv(
+        summary_path,
+        mode='a',
+        index=False,
+        header=not summary_path.exists()
+    )
+    print(f"Appended parallel timing to {summary_path}")
 
     if not results_list:
         print("No forecast results available.")
@@ -204,8 +278,23 @@ def arima_test_method_parallel(subset_length=None, train=None, test=None):
 
     results = pd.concat(results_list)
 
-    wmape_by_date = results.groupby(results.index).apply(
-        lambda x: wmape(x['y'], x['forecast']))
+    # wmape_by_date = results.groupby(results.index).apply(
+    #     lambda x: wmape(x['y'], x['forecast']))
+    # 1) concatenate all per‐series DataFrames
+
+    # 2) write out actual vs forecast for every (series, date)
+    preds = (
+        results
+        .reset_index()                     # bring ds back as a column
+        .rename(columns={'y': 'actual'})    # y -> actual
+        [['ds', 'unique_id', 'actual', 'forecast']]
+    )
+    preds_out = PRED_ARIMA_DIR/"arima_parallel_predictions.csv"
+    preds.to_csv(preds_out, index=False)
+    print(f"Wrote ARIMA parallel predictions to {preds_out}")
+    wmape_by_date = results.groupby('ds')[['y', 'forecast']] \
+        .apply(lambda df: wmape(df['y'].values,
+                                df['forecast'].values))
 
     total_hours, total_minutes, total_secs = seconds_to_hms(total_time)
     average_time = total_time / subset_length
@@ -225,8 +314,11 @@ def arima_test_method_parallel(subset_length=None, train=None, test=None):
     plt.xlabel("Date")
     plt.ylabel("Value")
     plt.legend()
-    plt.savefig(
-        '/Users/mahfuz/Final_project/Final_repo/Diagrams/Arima_diagrams/Arima_forecast_selected_series.png')
+    plt.savefig(ARIMA_DIAGRAMS_DIR /
+                f"ArimaForecast_{subset_uids[0]}.png", dpi=300)
+
+    # plt.savefig(
+    #     '/Users/mahfuz/Final_project/Final_repo/Diagrams/Arima_diagrams/Arima_forecast_selected_series.png')
     plt.show()
     plt.close()
 
@@ -237,8 +329,10 @@ def arima_test_method_parallel(subset_length=None, train=None, test=None):
     plt.ylabel('WMAPE')
     plt.title('WMAPE Over Time (ARIMA Forecasts)')
     plt.grid(True)
-    plt.savefig(
-        '/Users/mahfuz/Final_project/Final_repo/Diagrams/Arima_diagrams/Arima_WMAPE_over_time.png')
+    plt.savefig(ARIMA_DIAGRAMS_DIR /
+                "Arima_WMAPE_over_time.png", dpi=300)
+    # plt.savefig(
+    #     '/Users/mahfuz/Final_project/Final_repo/Diagrams/Arima_diagrams/Arima_WMAPE_over_time.png')
     plt.show()
     plt.close()
 
@@ -306,9 +400,10 @@ def save_best_seasonal_decomposition(train, composite_variability, period=4):
         axes[0].set_title("")      # Clear default title on the observed plot
         axes[0].set_ylabel("Observed")
         fig.suptitle(f'Seasonal Decomposition for {best_uid}')
-
-        plt.savefig(
-            "/Users/mahfuz/Final_project/Final_repo/Diagrams/Arima_diagrams/SeasonalDecomposition.png")
+        plt.savefig(ARIMA_DIAGRAMS_DIR /
+                    f"SeasonalDecomposition_{best_uid}.png", dpi=300)
+        # plt.savefig(
+        #     "/Users/mahfuz/Final_project/Final_repo/Diagrams/Arima_diagrams/SeasonalDecomposition.png")
         plt.close()
     else:
         print("No series qualified under the early-data filter.")
@@ -320,7 +415,8 @@ def main():
     # comp_variability = calculate_composite_variability(train)
     # save_best_seasonal_decomposition(train, comp_variability)
     # estimate_time_taken_for_series(5, train, test)
-    arima_test_method_parallel(None, train, test)
+    arima_test_method_parallel(200, train, test)
+    arima_test_method_in_series(200, train, test)
 
 
 if __name__ == '__main__':

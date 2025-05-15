@@ -1,69 +1,64 @@
-# Load up training set
-# Look average out the each quarters data
-# plot the data as line chart, Years on x-axis and average on y-axis
 
 
+#!/usr/bin/env python
+"""
+Plot average quarterly values overall and by bank type, saving outputs to diagrams.
+"""
+import sys
+from pathlib import Path
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import re
+# ─── Setup module path to import config.py ───────────────────────────────────
+# this file assumed in Data_preparation/ or a sibling under repo root
+REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT))
 
-# Load the data
-df = pd.read_csv(
-    '/Users/mahfuz/Final_project/Final_repo/DataSetsCBS/imputed_forward_fill.csv')
+from config import IMPUTED_RESULTS_DIR_TRAIN, DIAGRAMS_DIR  # nopep8
 
-# Drop non-quarter columns
-quarterly_columns = [col for col in df.columns if 'Q' in col]
-df_quarters = df[quarterly_columns]
+# ─── Paths ──────────────────────────────────────────────────────────────────
+INPUT_FILE = IMPUTED_RESULTS_DIR_TRAIN / "ffill.csv"
+OUTPUT_DIR = DIAGRAMS_DIR / "AverageQuarterly"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-# Convert to numeric (ignoring errors for missing or non-numeric values)
-df_quarters = df_quarters.apply(pd.to_numeric, errors='coerce')
+# ─── Load Data ──────────────────────────────────────────────────────────────
+df = pd.read_csv(INPUT_FILE)
+# identify quarter columns by pattern
+quarter_cols = [c for c in df.columns if re.match(r"^\d{4}-Q[1-4]$", c)]
 
-# Calculate the average for each quarter across all entries
-average_per_quarter = df_quarters.mean()
+# ─── 1) Overall average per quarter ─────────────────────────────────────────
+avg_overall = df[quarter_cols].apply(pd.to_numeric, errors='coerce').mean()
+# convert period index for plotting
+idx = pd.PeriodIndex(avg_overall.index, freq='Q').to_timestamp()
 
-# Convert index (e.g., "2005-Q1") to datetime for proper plotting
-average_per_quarter.index = pd.PeriodIndex(
-    average_per_quarter.index, freq='Q').to_timestamp()
+fig, ax = plt.subplots(figsize=(12, 6))
+ax.plot(idx, avg_overall.values, marker='o', linestyle='-')
+ax.set_xlabel('Date')
+ax.set_ylabel('Average Value')
+ax.set_title('Average Quarterly Values Over Time (All)')
+ax.grid(True)
+outfile = OUTPUT_DIR / 'average_overall.png'
+fig.savefig(outfile, dpi=300)
+plt.close(fig)
 
-# Plot the data
-plt.figure(figsize=(12, 6))
-plt.plot(average_per_quarter.index,
-         average_per_quarter.values, marker='o', linestyle='-')
-plt.xlabel('Year')
-plt.ylabel('Average Value')
-plt.title('Average Quarterly Values Over Time')
-plt.grid(True)
-plt.show()
-
-
-# Identify unique bank types
+# ─── 2) Average per quarter by bank type ─────────────────────────────────────
 bank_types = df['CBS_BASIS'].dropna().unique()
+fig, ax = plt.subplots(figsize=(12, 6))
+for bt in bank_types:
+    sub = df[df['CBS_BASIS'] == bt][quarter_cols]
+    avg_bt = sub.apply(pd.to_numeric, errors='coerce').mean()
+    idx_bt = pd.PeriodIndex(avg_bt.index, freq='Q').to_timestamp()
+    ax.plot(idx_bt, avg_bt.values, marker='o',
+            linestyle='-', label=f'Basis {bt}')
+ax.set_xlabel('Date')
+ax.set_ylabel('Average Value')
+ax.set_title('Average Quarterly Values by Bank Basis')
+ax.legend(title='Bank Basis')
+ax.grid(True)
+outfile2 = OUTPUT_DIR / 'average_by_bank_basis.png'
+fig.savefig(outfile2, dpi=300)
+plt.close(fig)
 
-# Create a plot for each bank type
-plt.figure(figsize=(12, 6))
-
-for bank_type in bank_types:
-    # Filter data for the specific bank type
-    df_filtered = df[df['CBS_BASIS'] == bank_type][quarterly_columns]
-
-    # Convert to numeric (ignoring errors for missing or non-numeric values)
-    df_filtered = df_filtered.apply(pd.to_numeric, errors='coerce')
-
-    # Calculate the average for each quarter
-    average_per_quarter = df_filtered.mean()
-
-    # Convert index (e.g., "2005-Q1") to datetime for proper plotting
-    average_per_quarter.index = pd.PeriodIndex(
-        average_per_quarter.index, freq='Q').to_timestamp()
-
-    # Plot the data
-    plt.plot(average_per_quarter.index, average_per_quarter.values,
-             marker='o', linestyle='-', label=f'Bank Type {bank_type}')
-
-# Customize plot
-plt.xlabel('Year')
-plt.ylabel('Average Value')
-plt.title('Average Quarterly Values Over Time by Bank Type')
-plt.legend(title="Bank Type")
-plt.grid(True)
-plt.show()
+print(f"Saved overall average plot to: {outfile}")
+print(f"Saved bank-basis average plot to: {outfile2}")

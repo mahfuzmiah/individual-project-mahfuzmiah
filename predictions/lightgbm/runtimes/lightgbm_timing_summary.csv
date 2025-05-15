@@ -1,0 +1,3 @@
+model,stage,total_time_s,avg_time_per_row_s,n_candidates
+lightgbm,hyperparameter_tuning,1080.27,,50.0
+lightgbm,train_and_predict,0.02,0.0,

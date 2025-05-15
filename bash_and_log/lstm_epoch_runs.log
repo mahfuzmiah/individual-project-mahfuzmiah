@@ -1,0 +1,33 @@
+=== LSTM batch run started: Tue May 13 09:46:18 BST 2025 ===
+[09:46:18] Running epochs=500
+2025-05-13 09:46:23.556663: I metal_plugin/src/device/metal_device.cc:1154] Metal device set to: Apple M1 Pro
+2025-05-13 09:46:23.556735: I metal_plugin/src/device/metal_device.cc:296] systemMemory: 16.00 GB
+2025-05-13 09:46:23.556745: I metal_plugin/src/device/metal_device.cc:313] maxCacheSize: 5.33 GB
+2025-05-13 09:46:23.556791: I tensorflow/core/common_runtime/pluggable_device/pluggable_device_factory.cc:305] Could not identify NUMA node of platform GPU ID 0, defaulting to 0. Your kernel may not have been built with NUMA support.
+2025-05-13 09:46:23.556807: I tensorflow/core/common_runtime/pluggable_device/pluggable_device_factory.cc:271] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 0 MB memory) -> physical PluggableDevice (device: 0, name: METAL, pci bus id: <undefined>)
+2025-05-13 09:46:24.078951: I tensorflow/core/grappler/optimizers/custom_graph_optimizer_registry.cc:117] Plugin optimizer for device_type GPU is enabled.
+
+=== Running with epochs=500 ===
+Row 12 constant; using 0.0
+Row 13 constant; using 0.0
+Row 25 constant; using 0.0
+Row 41 constant; using 0.0
+Row 42 constant; using 0.0
+Row 65 constant; using 0.0
+Row 66 constant; using 0.0
+Row 77 constant; using 0.0
+Row 78 constant; using 0.0
+Row 81 constant; using 0.0
+Row 88 constant; using 0.0
+Row 94 constant; using 0.0
+Row 95 constant; using 0.0
+Row 125 constant; using 0.0
+Row 126 constant; using 0.0
+Row 197 constant; using 0.0
+Overall time: 19977.00s; row‐avg: 99.8850s
+Total time taken to process dataset: 5 hours, 32 minutes, 57.00 seconds
+Average time taken per row: 0 hours, 1 minutes, 39.89 seconds
+Total time to predict entire test set: 327 hours, 17 minutes, 23.66 seconds
+Wrote predictions for 500 epochs to predictions/LSTM/lstm1_predictions_500epochs.csv
+Wrote epoch summary to predictions/LSTM/runtimes/lstm1_epochs_summary.csv
+=== All LSTM runs complete: Tue May 13 15:19:45 BST 2025 ===

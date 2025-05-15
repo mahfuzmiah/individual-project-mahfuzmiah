@@ -1,0 +1,14 @@
+epochs,total_time_s,avg_time_per_row_s
+
+
+epochs,total_time_s,avg_time_per_row_s
+50,1592.63,7.9631
+
+
+epochs,total_time_s,avg_time_per_row_s
+100,2310.93,11.5547
+
+epochs,total_time_s,avg_time_per_row_s
+200,4122.84,20.6142
+epochs,total_time_s,avg_time_per_row_s
+500,19977.0,99.885
